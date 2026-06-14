@@ -1,0 +1,13 @@
+# Generated knowledge graph (regenerable, token-free)
+graphify-out/
+
+# Rust / Tauri build output
+/target
+src-tauri/target
+
+# Node / frontend
+node_modules/
+dist/
+
+# macOS
+.DS_Store
