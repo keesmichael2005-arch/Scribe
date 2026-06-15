@@ -3,7 +3,7 @@
 
 mod panel;
 
-use tauri_plugin_global_shortcut::GlobalShortcutExt;
+use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
 fn main() {
     tauri::Builder::default()
@@ -23,7 +23,11 @@ fn main() {
             // "alt" (not "option") is the plugin's modifier name.
             app.handle()
                 .global_shortcut()
-                .on_shortcut("ctrl+alt+space", move |_app, _shortcut, _event| {
+                .on_shortcut("ctrl+alt+space", move |_app, _shortcut, event| {
+                    if event.state != ShortcutState::Pressed {
+                        return;
+                    }
+
                     if let Some(w) = app_handle.get_webview_window("spike") {
                         if w.is_visible().unwrap_or(false) {
                             let _ = w.hide();
