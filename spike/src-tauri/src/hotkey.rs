@@ -1,16 +1,9 @@
-use std::ffi::c_void;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 
 use tauri::{AppHandle, Manager};
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
-
-#[cfg(target_os = "macos")]
-#[link(name = "ApplicationServices", kind = "framework")]
-extern "C" {
-    fn AXIsProcessTrustedWithOptions(options: *const c_void) -> bool;
-}
 
 pub fn register_hotkeys(app_handle: AppHandle) {
     // ctrl+alt+space: Press/Release logging + panel toggle on Pressed.
@@ -85,20 +78,9 @@ pub fn register_hotkeys(app_handle: AppHandle) {
         let ctrl = ctrl_down;
         let option = option_down;
         move || {
-            #[cfg(target_os = "macos")]
-            {
-                // SAFETY: AXIsProcessTrustedWithOptions is a C function from
-                // ApplicationServices.framework. Null options = no prompt.
-                let trusted = unsafe { AXIsProcessTrustedWithOptions(std::ptr::null()) };
-                if !trusted {
-                    println!(
-                        "[RDEV] Accessibility not granted \u{2014} grant in System Settings \u{2192} Privacy & Security \u{2192} Accessibility, then rebuild and relaunch"
-                    );
-                    return;
-                }
-            }
+            println!("[RDEV] listener starting");
             // rdev::listen blocks; runs for the life of the process.
-            let _ = rdev::listen(move |event| match event.event_type {
+            let result = rdev::listen(move |event| match event.event_type {
                 rdev::EventType::KeyPress(rdev::Key::Function) => {
                     println!("[RDEV] fn \u{2014} Press")
                 }
@@ -133,6 +115,9 @@ pub fn register_hotkeys(app_handle: AppHandle) {
                 }
                 _ => {}
             });
+            if let Err(e) = result {
+                println!("[RDEV] listener failed to start: {:?}", e);
+            }
         }
     });
 }

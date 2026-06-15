@@ -1,6 +1,7 @@
 #[cfg(target_os = "macos")]
 mod imp {
     use objc2_app_kit::NSWindowStyleMask;
+    use tauri::Manager;
     use tauri_nspanel::{tauri_panel, Panel, WebviewWindowExt};
 
     // Gate C verdict: COMPATIBLE — wrapper crate usable.
