@@ -1,9 +1,8 @@
 // Prevents a console window from appearing on Windows in release builds.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+mod hotkey;
 mod panel;
-
-use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
 fn main() {
     tauri::Builder::default()
@@ -17,26 +16,7 @@ fn main() {
             // NonActivatingPanel style mask is in place before first display.
             panel::apply_panel_style(&window)?;
 
-            let app_handle = app.handle().clone();
-
-            // ctrl+alt+space toggles the hidden panel visible/hidden.
-            // "alt" (not "option") is the plugin's modifier name.
-            app.handle()
-                .global_shortcut()
-                .on_shortcut("ctrl+alt+space", move |_app, _shortcut, event| {
-                    if event.state != ShortcutState::Pressed {
-                        return;
-                    }
-
-                    if let Some(w) = app_handle.get_webview_window("spike") {
-                        if w.is_visible().unwrap_or(false) {
-                            let _ = w.hide();
-                        } else {
-                            let _ = w.show();
-                        }
-                    }
-                })
-                .expect("failed to register Ctrl+Alt+Space");
+            hotkey::register_hotkeys(app.handle().clone());
 
             Ok(())
         })
