@@ -27,8 +27,6 @@
     ]
   },
   "bundle": {
-    "active": false,
-    "targets": "none",
-    "icon": []
+    "active": false
   }
 }
