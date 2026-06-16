@@ -1,0 +1,10 @@
+{
+  "identifier": "spike",
+  "description": "Capabilities for the Scribe spike window",
+  "windows": ["spike"],
+  "permissions": [
+    "core:default",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister"
+  ]
+}
