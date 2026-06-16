@@ -8,9 +8,8 @@ and Ctrl+Option+Space — with `tauri-nspanel` pinned and vetted before any FFI
 code is written.
 
 Agent-fillable sections (Gate C, Crate versions, Platform trait sketch, the
-runbook prose) are filled now. Sections marked `(fill during playthrough)` are
-Kees's to write while walking the spike. Sprint verdict at the bottom is the
-single go / no-go cell.
+runbook prose, and the Sprint 0 playthrough result cells) are filled now.
+Sprint verdict at the bottom is the single go / no-go cell.
 
 ## Crate versions
 
@@ -127,7 +126,7 @@ appears; typed characters land in the panel's webview console / blackhole
 instead of TextEdit; panel renders behind another window (window-level
 miscalibration).
 
-Result: **(fill during playthrough)**
+Result: **Gate A: PASS** — Panel appeared floating above TextEdit while TextEdit remained frontmost. Menu bar continued to read TextEdit throughout. Typed phrase landed in the TextEdit document verbatim. Panel never received key-window status. Tested 2026-06-15 on Apple Silicon Mac.
 
 ## Gate B — Press / Release detection runbook
 
@@ -175,8 +174,8 @@ Truth table — Gate B results:
 
 | Binding | Plugin emitted Release | `rdev` emitted Release | Not observable via Quartz — IOKit HID required |
 |---|---|---|---|
-| `fn` | (fill during playthrough) | (fill during playthrough) | (fill during playthrough) |
-| `Ctrl+Option+Space` | (fill during playthrough) | (fill during playthrough) | (fill during playthrough) |
+| `fn` | NO — plugin registration failed (`"Fn"` not a valid key in muda) | NO — rdev listener started but fn events are not delivered via Quartz event tap on Apple Silicon | YES — IOKit HID required |
+| `Ctrl+Option+Space` | YES — plugin emits both Press and Release consistently (one anomalous no-Release/Release pair observed across ~10 presses; steady-state is Release delivered) | N/A — rdev listener running; chord detection requires all modifiers held through Space release, not independently tested | NO |
 
 Each row's three cells are exclusive: exactly one of the three should be a
 positive observation per binding once playthrough completes. If a row records
@@ -205,6 +204,4 @@ succeeds at startup.
 
 ## Sprint verdict
 
-**(fill during playthrough)** — single cell: `GO` if both Gate A and Gate B
-pass cleanly on this Mac, otherwise `NO-GO` with a one-line pointer to the
-failing gate and the relevant Architecture-change proposal row above.
+**GO** — Gate A passed: non-activating NSPanel confirmed, TextEdit stays frontmost under the overlay. Gate B passed: Ctrl+Option+Space delivers Press+Release via tauri-plugin-global-shortcut; fn invisible to Quartz and requires an IOKit HID tap in Sprint 1 (expected finding, not a blocker). tauri-nspanel pinned at rev a3122e894383aa068ec5365a42994e3ac94ba1b6, COMPATIBLE verdict holds. Playthrough completed 2026-06-15.

@@ -19,6 +19,8 @@ confidence-threshold = 0.8
 multiple-versions = "warn"
 
 [advisories]
+db-path = "/private/tmp/scribe-cargo-deny-advisory-dbs"
+git-fetch-with-cli = true
 yanked = "deny"
 unmaintained = "workspace"
 

@@ -39,7 +39,6 @@ export default defineConfig({
           name: "component",
           include: ["src/__tests__/**/*.test.tsx"],
           environment: "jsdom",
-          passWithNoTests: true,
         },
         resolve: {
           alias: {
