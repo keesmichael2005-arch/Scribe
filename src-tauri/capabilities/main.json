@@ -1,0 +1,10 @@
+{
+  "identifier": "main",
+  "description": "Capabilities for the main Scribe window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister"
+  ]
+}

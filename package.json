@@ -1,0 +1,31 @@
+{
+  "name": "scribe",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "tauri": "tauri",
+    "test": "vitest run",
+    "test:fast": "vitest run --project unit --project component && cargo test --manifest-path src-tauri/Cargo.toml --lib",
+    "test:unit": "vitest run --project unit",
+    "test:component": "vitest run --project component --passWithNoTests"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2",
+    "@testing-library/react": "^16",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "^4.7.0",
+    "jsdom": "^25",
+    "typescript": "^5",
+    "vite": "^5",
+    "vitest": "^4.1.9"
+  }
+}

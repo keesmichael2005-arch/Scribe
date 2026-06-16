@@ -1,0 +1,6 @@
+{
+  "identifier": "overlay",
+  "description": "Capabilities for the overlay window",
+  "windows": ["overlay"],
+  "permissions": []
+}

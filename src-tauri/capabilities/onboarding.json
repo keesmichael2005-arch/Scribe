@@ -1,0 +1,10 @@
+{
+  "identifier": "onboarding",
+  "description": "Capabilities for the onboarding wizard window",
+  "windows": ["onboarding"],
+  "permissions": [
+    "core:default",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister"
+  ]
+}

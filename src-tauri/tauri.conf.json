@@ -1,0 +1,57 @@
+{
+  "$schema": "https://schema.tauri.app/config/2.0.0",
+  "productName": "Scribe",
+  "version": "0.0.0",
+  "identifier": "app.scribe.desktop",
+  "build": {
+    "devUrl": "http://localhost:1420",
+    "frontendDist": "../dist",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "macOSPrivateApi": true,
+    "windows": [
+      {
+        "label": "main",
+        "url": "index.html",
+        "width": 800,
+        "height": 600,
+        "visible": true
+      },
+      {
+        "label": "onboarding",
+        "url": "index.html#/onboarding",
+        "width": 480,
+        "height": 640,
+        "visible": false
+      },
+      {
+        "label": "overlay",
+        "url": "index.html#/overlay",
+        "width": 400,
+        "height": 80,
+        "transparent": true,
+        "decorations": false,
+        "alwaysOnTop": true,
+        "visible": false,
+        "focus": false,
+        "resizable": false
+      },
+      {
+        "label": "settings",
+        "url": "index.html#/settings",
+        "width": 600,
+        "height": 500,
+        "visible": false
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg"],
+    "macOS": {
+      "signingIdentity": "-"
+    }
+  }
+}

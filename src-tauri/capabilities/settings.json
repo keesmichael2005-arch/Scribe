@@ -1,0 +1,6 @@
+{
+  "identifier": "settings",
+  "description": "Capabilities for the settings window",
+  "windows": ["settings"],
+  "permissions": []
+}
