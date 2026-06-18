@@ -20,14 +20,14 @@ fn with_backend<T>(f: impl FnOnce(&dyn KeychainBackend) -> Result<T, SecretsErro
     }
     f(guard.as_ref().unwrap().as_ref())
 }
-
 #[cfg(test)]
 pub(crate) fn set_test_backend(backend: Box<dyn KeychainBackend + Send + Sync>) {
     let mut guard = BACKEND.lock().unwrap();
     *guard = Some(backend);
 }
 
-
+#[cfg(test)]
+pub(crate) static TEST_LOCK: Mutex<()> = Mutex::new(());
 
 fn provider_account(provider: Provider) -> &'static str {
     match provider {
@@ -99,9 +99,7 @@ mod tests {
     use super::*;
     use crate::shared::Provider;
     use backend::InMemoryBackend;
-    use std::sync::{Mutex, MutexGuard};
-
-    static TEST_LOCK: Mutex<()> = Mutex::new(());
+    use std::sync::MutexGuard;
 
     fn setup() -> MutexGuard<'static, ()> {
         let guard = TEST_LOCK.lock().unwrap();

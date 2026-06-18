@@ -58,9 +58,12 @@ pub fn run() {
 mod tests {
     use super::*;
     use crate::secrets::backend::InMemoryBackend;
+    use std::sync::MutexGuard;
 
-    fn setup() {
+    fn setup() -> MutexGuard<'static, ()> {
+        let guard = crate::secrets::TEST_LOCK.lock().unwrap();
         crate::secrets::set_test_backend(Box::new(InMemoryBackend::new()));
+        guard
     }
 
     #[test]
@@ -68,7 +71,7 @@ mod tests {
 
     #[test]
     fn set_api_key_cmd_rejects_overlay_via_mirror() {
-        setup();
+        let _guard = setup();
         fn mirror_set(label: &str, provider: Provider, key: &str) -> Result<(), String> {
             if label != KNOWN_ONBOARDING_LABEL {
                 return Err("unauthorized window".to_string());
@@ -82,7 +85,7 @@ mod tests {
 
     #[test]
     fn has_api_key_cmd_rejects_overlay_via_mirror() {
-        setup();
+        let _guard = setup();
         fn mirror_has(label: &str, provider: Provider) -> Result<bool, String> {
             if label != KNOWN_ONBOARDING_LABEL {
                 return Err("unauthorized window".to_string());
@@ -95,7 +98,7 @@ mod tests {
 
     #[test]
     fn delete_api_key_cmd_rejects_overlay_via_mirror() {
-        setup();
+        let _guard = setup();
         fn mirror_delete(label: &str, provider: Provider) -> Result<(), String> {
             if label != KNOWN_ONBOARDING_LABEL {
                 return Err("unauthorized window".to_string());
