@@ -1,3 +1,5 @@
+pub mod shared;
+
 pub fn run() {
     tauri::Builder::default()
         // SCRIBE-3: register secrets commands (keychain get/set/has/delete for API keys)

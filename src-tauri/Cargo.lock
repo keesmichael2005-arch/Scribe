@@ -4241,6 +4241,7 @@ dependencies = [
  "objc2",
  "objc2-app-kit",
  "objc2-io-kit",
+ "serde",
  "tauri",
  "tauri-build",
  "tauri-nspanel",

@@ -16,6 +16,7 @@ tauri-plugin-global-shortcut = "2.3"
 tauri-plugin-clipboard-manager = "2.3"
 tauri-nspanel = { git = "https://github.com/ahkohd/tauri-nspanel", rev = "a3122e894383aa068ec5365a42994e3ac94ba1b6" }
 keyring = "4.0"
+serde = { version = "1", features = ["derive"] }
 objc2 = "0.6"
 objc2-app-kit = "0.3"
 objc2-io-kit = "0.3"
