@@ -4,6 +4,7 @@ graphify-out/
 # Rust / Tauri build output
 /target
 src-tauri/target
+scripts/cargo-deny-compat/target
 
 # Node / frontend
 node_modules/

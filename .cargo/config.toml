@@ -1,2 +1,3 @@
 [alias]
 universal = "build --target universal-apple-darwin"
+deny = "run --quiet --manifest-path scripts/cargo-deny-compat/Cargo.toml --"
