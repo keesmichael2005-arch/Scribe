@@ -13,7 +13,9 @@ type BackendBox = Box<dyn KeychainBackend + Send + Sync>;
 
 static BACKEND: Mutex<Option<BackendBox>> = Mutex::new(None);
 
-fn with_backend<T>(f: impl FnOnce(&dyn KeychainBackend) -> Result<T, SecretsError>) -> Result<T, SecretsError> {
+fn with_backend<T>(
+    f: impl FnOnce(&dyn KeychainBackend) -> Result<T, SecretsError>,
+) -> Result<T, SecretsError> {
     let mut guard = BACKEND.lock().unwrap();
     if guard.is_none() {
         *guard = Some(Box::new(RealKeyringBackend));
@@ -68,14 +70,12 @@ pub fn app_data_dir() -> Result<PathBuf, SecretsError> {
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
-        let metadata =
-            std::fs::metadata(&dir).map_err(|e| SecretsError::Io(format!("{e}")))?;
+        let metadata = std::fs::metadata(&dir).map_err(|e| SecretsError::Io(format!("{e}")))?;
         let mode = metadata.permissions().mode();
         if mode & 0o777 != 0o700 {
             let mut perms = metadata.permissions();
             perms.set_mode(0o700);
-            std::fs::set_permissions(&dir, perms)
-                .map_err(|e| SecretsError::Io(format!("{e}")))?;
+            std::fs::set_permissions(&dir, perms).map_err(|e| SecretsError::Io(format!("{e}")))?;
         }
     }
 
@@ -89,9 +89,11 @@ fn base_data_dir() -> Option<PathBuf> {
 
 #[cfg(test)]
 fn base_data_dir() -> Option<PathBuf> {
-    std::env::var("HOME")
-        .ok()
-        .map(|home| PathBuf::from(home).join("Library").join("Application Support"))
+    std::env::var("HOME").ok().map(|home| {
+        PathBuf::from(home)
+            .join("Library")
+            .join("Application Support")
+    })
 }
 
 #[cfg(test)]
@@ -205,7 +207,12 @@ mod tests {
             use std::os::unix::fs::PermissionsExt;
             let metadata = std::fs::metadata(&dir).unwrap();
             let mode = metadata.permissions().mode();
-            assert_eq!(mode & 0o777, 0o700, "expected mode 0o700, got 0o{:o}", mode & 0o777);
+            assert_eq!(
+                mode & 0o777,
+                0o700,
+                "expected mode 0o700, got 0o{:o}",
+                mode & 0o777
+            );
         }
 
         std::fs::remove_dir_all(&tmp).ok();
@@ -216,10 +223,19 @@ mod tests {
         let _guard = setup();
         set_api_key(Provider::Groq, "groq-key").unwrap();
         set_api_key(Provider::OpenAI, "openai-key").unwrap();
-        assert_eq!(get_api_key(Provider::Groq).unwrap(), Some("groq-key".to_string()));
-        assert_eq!(get_api_key(Provider::OpenAI).unwrap(), Some("openai-key".to_string()));
+        assert_eq!(
+            get_api_key(Provider::Groq).unwrap(),
+            Some("groq-key".to_string())
+        );
+        assert_eq!(
+            get_api_key(Provider::OpenAI).unwrap(),
+            Some("openai-key".to_string())
+        );
         delete_api_key(Provider::Groq).unwrap();
         assert_eq!(get_api_key(Provider::Groq).unwrap(), None);
-        assert_eq!(get_api_key(Provider::OpenAI).unwrap(), Some("openai-key".to_string()));
+        assert_eq!(
+            get_api_key(Provider::OpenAI).unwrap(),
+            Some("openai-key".to_string())
+        );
     }
 }

@@ -3,16 +3,10 @@ pub mod shared;
 
 use crate::shared::{Provider, ALLOWED_SECRETS_WINDOWS};
 
-// SECURITY (SCRIBE-3): These privileged secrets commands are gated at runtime by the
-// `window.label()` check below against ALLOWED_SECRETS_WINDOWS. Tauri v2's ACL/capability
-// system only governs plugin and core commands — app commands registered via
-// generate_handler! are NOT represented in the ACL (see gen/schemas/acl-manifests.json:
-// no app manifest exists), so there is no permission identifier to list in a capability
-// file and `tauri permission ls` will never show them. The capability JSON therefore
-// cannot gate these; the window.label() allowlist is the authoritative gate and is what
-// the unit tests exercise. Do not re-add command entries to capabilities/onboarding.json —
-// they are silently inert for app commands. If Sprint 3 needs the settings window to call
-// these, add "settings" to ALLOWED_SECRETS_WINDOWS in shared, not to a capability file.
+// SECURITY (SCRIBE-3): These privileged secrets commands are dual-gated by
+// onboarding.json capability entries and the runtime `window.label()` check below.
+// If Sprint 3 needs the settings window to call these, add "settings" to
+// ALLOWED_SECRETS_WINDOWS in shared and mirror the command permissions in settings.json.
 
 #[tauri::command]
 async fn set_api_key_cmd<R: tauri::Runtime>(
@@ -106,5 +100,27 @@ mod tests {
         .unwrap();
         let result = tauri::async_runtime::block_on(has_api_key_cmd(webview, Provider::Groq));
         assert!(result.is_ok());
+    }
+
+    #[test]
+    fn secrets_commands_are_only_in_onboarding_capabilities() {
+        let onboarding: serde_json::Value =
+            serde_json::from_str(include_str!("../capabilities/onboarding.json")).unwrap();
+        let main: serde_json::Value =
+            serde_json::from_str(include_str!("../capabilities/main.json")).unwrap();
+        let onboarding_permissions = onboarding["permissions"].as_array().unwrap();
+        let main_permissions = main["permissions"].as_array().unwrap();
+        let secrets_commands = ["set-api-key-cmd", "delete-api-key-cmd", "has-api-key-cmd"];
+
+        for command in secrets_commands {
+            assert!(
+                onboarding_permissions.contains(&serde_json::Value::String(command.to_string())),
+                "onboarding capability must allow {command}"
+            );
+            assert!(
+                !main_permissions.contains(&serde_json::Value::String(command.to_string())),
+                "main capability must not allow {command}"
+            );
+        }
     }
 }

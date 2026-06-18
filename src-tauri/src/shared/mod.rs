@@ -18,8 +18,14 @@ pub const PROVIDERS: &[Provider] = &[Provider::Groq, Provider::OpenAI];
 
 pub fn egress_disclosure_copy(p: Provider) -> String {
     match p {
-        Provider::Groq => "Your audio is sent to Groq for transcription. No processing happens on this device.".to_string(),
-        Provider::OpenAI => "Your audio is sent to OpenAI for transcription. No processing happens on this device.".to_string(),
+        Provider::Groq => {
+            "Your audio is sent to Groq for transcription. No processing happens on this device."
+                .to_string()
+        }
+        Provider::OpenAI => {
+            "Your audio is sent to OpenAI for transcription. No processing happens on this device."
+                .to_string()
+        }
     }
 }
 
@@ -42,12 +48,18 @@ pub fn retention_disclosure(p: Provider) -> &'static str {
 mod tests {
     #[test]
     fn egress_copy_groq() {
-        assert_eq!(super::egress_disclosure_copy(super::Provider::Groq), "Your audio is sent to Groq for transcription. No processing happens on this device.");
+        assert_eq!(
+            super::egress_disclosure_copy(super::Provider::Groq),
+            "Your audio is sent to Groq for transcription. No processing happens on this device."
+        );
     }
 
     #[test]
     fn egress_copy_openai() {
-        assert_eq!(super::egress_disclosure_copy(super::Provider::OpenAI), "Your audio is sent to OpenAI for transcription. No processing happens on this device.");
+        assert_eq!(
+            super::egress_disclosure_copy(super::Provider::OpenAI),
+            "Your audio is sent to OpenAI for transcription. No processing happens on this device."
+        );
     }
 
     #[test]

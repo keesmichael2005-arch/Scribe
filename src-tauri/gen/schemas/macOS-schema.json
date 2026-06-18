@@ -177,6 +177,24 @@
       "description": "Permission identifier",
       "oneOf": [
         {
+          "description": "Allows the onboarding window to delete a provider API key.",
+          "type": "string",
+          "const": "delete-api-key-cmd",
+          "markdownDescription": "Allows the onboarding window to delete a provider API key."
+        },
+        {
+          "description": "Allows the onboarding window to check whether a provider API key exists.",
+          "type": "string",
+          "const": "has-api-key-cmd",
+          "markdownDescription": "Allows the onboarding window to check whether a provider API key exists."
+        },
+        {
+          "description": "Allows the onboarding window to set a provider API key.",
+          "type": "string",
+          "const": "set-api-key-cmd",
+          "markdownDescription": "Allows the onboarding window to set a provider API key."
+        },
+        {
           "description": "No features are enabled by default, as we believe\nthe clipboard can be inherently dangerous and it is \napplication specific if read and/or write access is needed.\n\nClipboard interaction needs to be explicitly enabled.\n",
           "type": "string",
           "const": "clipboard-manager:default",
