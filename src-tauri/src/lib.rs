@@ -1,39 +1,37 @@
 pub mod secrets;
 pub mod shared;
 
-const KNOWN_ONBOARDING_LABEL: &str = "onboarding";
-
-use crate::shared::Provider;
+use crate::shared::{Provider, ALLOWED_SECRETS_WINDOWS};
 
 #[tauri::command]
-async fn set_api_key_cmd(
-    window: tauri::Window,
+async fn set_api_key_cmd<R: tauri::Runtime>(
+    window: tauri::WebviewWindow<R>,
     provider: Provider,
     key: String,
 ) -> Result<(), String> {
-    if window.label() != KNOWN_ONBOARDING_LABEL {
+    if !ALLOWED_SECRETS_WINDOWS.contains(&window.label()) {
         return Err("unauthorized window".to_string());
     }
     secrets::set_api_key(provider, &key).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-async fn delete_api_key_cmd(
-    window: tauri::Window,
+async fn delete_api_key_cmd<R: tauri::Runtime>(
+    window: tauri::WebviewWindow<R>,
     provider: Provider,
 ) -> Result<(), String> {
-    if window.label() != KNOWN_ONBOARDING_LABEL {
+    if !ALLOWED_SECRETS_WINDOWS.contains(&window.label()) {
         return Err("unauthorized window".to_string());
     }
     secrets::delete_api_key(provider).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-async fn has_api_key_cmd(
-    window: tauri::Window,
+async fn has_api_key_cmd<R: tauri::Runtime>(
+    window: tauri::WebviewWindow<R>,
     provider: Provider,
 ) -> Result<bool, String> {
-    if window.label() != KNOWN_ONBOARDING_LABEL {
+    if !ALLOWED_SECRETS_WINDOWS.contains(&window.label()) {
         return Err("unauthorized window".to_string());
     }
     secrets::has_api_key(provider).map_err(|e| e.to_string())
@@ -70,42 +68,32 @@ mod tests {
     fn scaffold_compiles() {}
 
     #[test]
-    fn set_api_key_cmd_rejects_overlay_via_mirror() {
+    fn has_api_key_cmd_rejects_overlay_label() {
         let _guard = setup();
-        fn mirror_set(label: &str, provider: Provider, key: &str) -> Result<(), String> {
-            if label != KNOWN_ONBOARDING_LABEL {
-                return Err("unauthorized window".to_string());
-            }
-            secrets::set_api_key(provider, key).map_err(|e| e.to_string())
-        }
-
-        assert!(mirror_set("overlay", Provider::Groq, "test").is_err());
-        assert!(mirror_set("onboarding", Provider::Groq, "test").is_ok());
+        let app = tauri::test::mock_app();
+        let webview = tauri::WebviewWindowBuilder::new(
+            &app,
+            "overlay",
+            tauri::WebviewUrl::App("index.html".into()),
+        )
+        .build()
+        .unwrap();
+        let result = tauri::async_runtime::block_on(has_api_key_cmd(webview, Provider::Groq));
+        assert_eq!(result, Err("unauthorized window".to_string()));
     }
 
     #[test]
-    fn has_api_key_cmd_rejects_overlay_via_mirror() {
+    fn has_api_key_cmd_accepts_onboarding_label() {
         let _guard = setup();
-        fn mirror_has(label: &str, provider: Provider) -> Result<bool, String> {
-            if label != KNOWN_ONBOARDING_LABEL {
-                return Err("unauthorized window".to_string());
-            }
-            secrets::has_api_key(provider).map_err(|e| e.to_string())
-        }
-
-        assert!(mirror_has("overlay", Provider::Groq).is_err());
-    }
-
-    #[test]
-    fn delete_api_key_cmd_rejects_overlay_via_mirror() {
-        let _guard = setup();
-        fn mirror_delete(label: &str, provider: Provider) -> Result<(), String> {
-            if label != KNOWN_ONBOARDING_LABEL {
-                return Err("unauthorized window".to_string());
-            }
-            secrets::delete_api_key(provider).map_err(|e| e.to_string())
-        }
-
-        assert!(mirror_delete("overlay", Provider::Groq).is_err());
+        let app = tauri::test::mock_app();
+        let webview = tauri::WebviewWindowBuilder::new(
+            &app,
+            "onboarding",
+            tauri::WebviewUrl::App("index.html".into()),
+        )
+        .build()
+        .unwrap();
+        let result = tauri::async_runtime::block_on(has_api_key_cmd(webview, Provider::Groq));
+        assert!(result.is_ok());
     }
 }

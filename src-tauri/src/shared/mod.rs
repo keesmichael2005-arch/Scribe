@@ -5,6 +5,7 @@
 
 pub const APP_NAME: &str = "Scribe";
 pub const KEYCHAIN_SERVICE: &str = "Scribe";
+pub const ALLOWED_SECRETS_WINDOWS: &[&str] = &["onboarding"];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "lowercase")]
