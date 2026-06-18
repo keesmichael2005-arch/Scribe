@@ -2,9 +2,9 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum SecretsError {
-    #[error("keychain error: {0}")]
+    #[error("keychain error")]
     Keychain(String),
-    #[error("io error: {0}")]
+    #[error("io error")]
     Io(String),
     #[error("unauthorized window")]
     Unauthorized,

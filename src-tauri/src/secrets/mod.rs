@@ -177,11 +177,8 @@ mod tests {
     fn secrets_error_display_never_contains_fake_key() {
         let fake_key = "gsk_test_NEVERAPPEAR";
         let variants: Vec<SecretsError> = vec![
-            SecretsError::Keychain("locked".to_string()),
-            SecretsError::Keychain("not-found".to_string()),
-            SecretsError::Keychain("denied".to_string()),
-            SecretsError::Keychain("platform failure".to_string()),
-            SecretsError::Io("permission denied".to_string()),
+            SecretsError::Keychain(fake_key.to_string()),
+            SecretsError::Io(fake_key.to_string()),
             SecretsError::Unauthorized,
         ];
         for variant in variants {
