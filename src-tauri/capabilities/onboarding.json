@@ -8,6 +8,7 @@
     "global-shortcut:allow-unregister",
     "set-api-key-cmd",
     "delete-api-key-cmd",
-    "has-api-key-cmd"
+    "has-api-key-cmd",
+    "request-microphone-permission-cmd"
   ]
 }

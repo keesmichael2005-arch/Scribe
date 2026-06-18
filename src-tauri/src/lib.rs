@@ -1,7 +1,10 @@
+pub mod platform;
 pub mod secrets;
 pub mod shared;
 
 use crate::shared::{Provider, ALLOWED_SECRETS_WINDOWS};
+use crate::platform::macos::permissions;
+use crate::platform::PermissionStatus;
 
 // SECURITY (SCRIBE-3): These privileged secrets commands are dual-gated by
 // onboarding.json capability entries and the runtime `window.label()` check below.
@@ -42,17 +45,29 @@ async fn has_api_key_cmd<R: tauri::Runtime>(
     secrets::has_api_key(provider).map_err(|e| e.to_string())
 }
 
+#[tauri::command]
+async fn request_microphone_permission_cmd<R: tauri::Runtime>(
+    window: tauri::WebviewWindow<R>,
+) -> Result<PermissionStatus, String> {
+    if !ALLOWED_SECRETS_WINDOWS.contains(&window.label()) {
+        return Err("unauthorized window".to_string());
+    }
+    Ok(permissions::request_microphone_permission().await)
+}
+
 pub fn run() {
+    let _ = tracing_subscriber::fmt()
+        .with_writer(std::io::stderr)
+        .try_init();
+
     tauri::Builder::default()
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             set_api_key_cmd,
             delete_api_key_cmd,
             has_api_key_cmd,
+            request_microphone_permission_cmd,
         ])
-        // SCRIBE-3: secrets commands registered above (keychain get/set/has/delete for API keys)
-        // SCRIBE-4: register platform commands (hotkey register/unregister, permissions check)
-        // SCRIBE-5: register onboarding commands (open/close, is_complete, mark_complete)
-        // SCRIBE-6: register tray commands (idle icon, menu items)
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");
 }
@@ -122,5 +137,40 @@ mod tests {
                 "main capability must not allow {command}"
             );
         }
+    }
+
+    #[test]
+    fn request_microphone_permission_cmd_rejects_non_onboarding_label() {
+        let app = tauri::test::mock_app();
+        let webview = tauri::WebviewWindowBuilder::new(
+            &app,
+            "overlay",
+            tauri::WebviewUrl::App("index.html".into()),
+        )
+        .build()
+        .unwrap();
+        let result = tauri::async_runtime::block_on(request_microphone_permission_cmd(webview));
+        assert_eq!(result, Err("unauthorized window".to_string()));
+    }
+
+    #[test]
+    fn privileged_platform_commands_not_in_main_capability() {
+        let onboarding: serde_json::Value =
+            serde_json::from_str(include_str!("../capabilities/onboarding.json")).unwrap();
+        let main: serde_json::Value =
+            serde_json::from_str(include_str!("../capabilities/main.json")).unwrap();
+        let onboarding_permissions = onboarding["permissions"].as_array().unwrap();
+        let main_permissions = main["permissions"].as_array().unwrap();
+
+        assert!(
+            onboarding_permissions
+                .contains(&serde_json::Value::String("request-microphone-permission-cmd".to_string())),
+            "onboarding capability must allow request-microphone-permission-cmd"
+        );
+        assert!(
+            !main_permissions
+                .contains(&serde_json::Value::String("request-microphone-permission-cmd".to_string())),
+            "main capability must not allow request-microphone-permission-cmd"
+        );
     }
 }

@@ -189,6 +189,12 @@
           "markdownDescription": "Allows the onboarding window to check whether a provider API key exists."
         },
         {
+          "description": "Allows the onboarding window to request microphone permission from the system.",
+          "type": "string",
+          "const": "request-microphone-permission-cmd",
+          "markdownDescription": "Allows the onboarding window to request microphone permission from the system."
+        },
+        {
           "description": "Allows the onboarding window to set a provider API key.",
           "type": "string",
           "const": "set-api-key-cmd",

@@ -1,0 +1,4 @@
+[[permission]]
+identifier = "request-microphone-permission-cmd"
+description = "Allows the onboarding window to request microphone permission from the system."
+commands.allow = ["request_microphone_permission_cmd"]
