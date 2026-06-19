@@ -185,9 +185,6 @@ mod tests {
     }
 
     #[test]
-    fn scaffold_compiles() {}
-
-    #[test]
     fn has_api_key_cmd_rejects_overlay_label() {
         let _guard = setup();
         let app = tauri::test::mock_app();
