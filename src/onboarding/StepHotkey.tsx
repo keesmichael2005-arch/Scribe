@@ -25,7 +25,7 @@ export default function StepHotkey({ onComplete, binding }: StepHotkeyProps) {
     onComplete();
   };
 
-  const isContinueDisabled = binding === null || conflicts === true;
+  const isContinueDisabled = binding === null || conflicts !== false;
 
   return (
     <div>
