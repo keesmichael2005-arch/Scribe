@@ -49,7 +49,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["dmg"],
+    "targets": ["app"],
     "macOS": {
       "signingIdentity": "-"
     }

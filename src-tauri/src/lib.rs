@@ -2,10 +2,13 @@ pub mod onboarding;
 pub mod platform;
 pub mod secrets;
 pub mod shared;
+pub mod tray;
 
-use crate::shared::{Provider, ALLOWED_SECRETS_WINDOWS};
 use crate::platform::macos::permissions;
+use crate::platform::macos::MacPlatform;
+use crate::shared::{Provider, ALLOWED_SECRETS_WINDOWS};
 use crate::platform::{PermissionStatus, HotkeyBinding, Platform};
+use tauri::Manager;
 
 // SECURITY (SCRIBE-3): These privileged secrets commands are dual-gated by
 // onboarding.json capability entries and the runtime `window.label()` check below.
@@ -119,11 +122,35 @@ fn platform_register_hotkey_cmd(app: tauri::AppHandle, binding: HotkeyBinding) {
 }
 
 pub fn run() {
+    let log_dir = dirs::home_dir()
+        .expect("home dir")
+        .join("Library/Logs/Scribe");
+    std::fs::create_dir_all(&log_dir).expect("create log dir");
+    let file_appender = tracing_appender::rolling::never(&log_dir, "scribe.log");
+    let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
+
     let _ = tracing_subscriber::fmt()
-        .with_writer(std::io::stderr)
+        .with_writer(non_blocking)
         .try_init();
 
     tauri::Builder::default()
+        .setup(|app| {
+            let handle = app.handle().clone();
+
+            let tray_icon = tray::init(&handle)?;
+            app.manage(tray_icon);
+
+            let ax_granted = MacPlatform::ax_check_with_prompt();
+            tracing::info!(ax_granted, "accessibility check at startup");
+
+            if !onboarding::is_onboarding_complete() {
+                onboarding::open_onboarding(&handle);
+            } else if let Some(main_window) = app.get_webview_window("main") {
+                let _ = main_window.hide();
+            }
+
+            Ok(())
+        })
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             set_api_key_cmd,

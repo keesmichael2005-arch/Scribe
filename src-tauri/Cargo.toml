@@ -11,7 +11,7 @@ name = "scribe_lib"
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-tauri = { version = "2.11", features = ["macos-private-api", "test"] }
+tauri = { version = "2.11", features = ["macos-private-api", "test", "tray-icon"] }
 tauri-plugin-global-shortcut = "2.3"
 tauri-plugin-clipboard-manager = "2.3"
 tauri-nspanel = { git = "https://github.com/ahkohd/tauri-nspanel", rev = "a3122e894383aa068ec5365a42994e3ac94ba1b6" }
@@ -23,8 +23,10 @@ serde_json = "1"
 thiserror = "2.0"
 tokio = { version = "1", features = ["sync", "rt", "macros", "time"] }
 tracing = "0.1"
+tracing-appender = "0.2"
 tracing-subscriber = "0.3"
 block2 = "0.6"
+image = { version = "0.25", default-features = false, features = ["png"] }
 objc2 = "0.6"
 objc2-app-kit = "0.3"
 objc2-foundation = "0.3"
