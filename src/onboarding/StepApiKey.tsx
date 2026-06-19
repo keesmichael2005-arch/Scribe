@@ -16,7 +16,9 @@ export default function StepApiKey({ onComplete, apiKey, setKey }: StepApiKeyPro
   }, []);
 
   const handleContinue = async () => {
-    await invoke("set_api_key_cmd", { provider: "groq", key: apiKey.trim() });
+    if (apiKey.trim().length > 0) {
+      await invoke("set_api_key_cmd", { provider: "groq", key: apiKey.trim() });
+    }
     onComplete();
   };
 
@@ -33,8 +35,8 @@ export default function StepApiKey({ onComplete, apiKey, setKey }: StepApiKeyPro
         API key
       </h1>
 
-      {hasExisting ? (
-        <div style={{ marginBottom: "16px" }}>
+      {hasExisting && (
+        <div style={{ marginBottom: "8px" }}>
           <span
             style={{
               display: "inline-flex",
@@ -60,55 +62,57 @@ export default function StepApiKey({ onComplete, apiKey, setKey }: StepApiKeyPro
             Key saved
           </span>
         </div>
-      ) : (
-        <input
-          type="password"
-          value={apiKey}
-          onChange={(e) => setKey(e.target.value)}
-          placeholder="Enter your Groq API key"
-          style={{
-            width: "100%",
-            padding: "9px 12px",
-            borderRadius: "var(--r-input)",
-            border: "1px solid var(--border)",
-            background: "var(--bg-primary)",
-            color: "var(--text-primary)",
-            fontFamily: "var(--font)",
-            fontSize: "13.5px",
-            outline: "none",
-            marginBottom: "16px",
-          }}
-        />
       )}
 
-      {hasExisting === false && (
-        <>
-          <div
-            style={{
-              background: "var(--accent-soft)",
-              border: "1px solid color-mix(in srgb, var(--accent) 25%, transparent)",
-              borderRadius: "9px",
-              padding: "11px 13px",
-              fontSize: "12.5px",
-              color: "var(--text-secondary)",
-              marginBottom: "8px",
-            }}
-          >
-            <span style={{ fontWeight: 600 }}>Groq</span>{" "}
-            {egressDisclosureCopy("groq")}
-          </div>
+      <input
+        type="password"
+        value={apiKey}
+        onChange={(e) => setKey(e.target.value)}
+        placeholder={
+          hasExisting ? "••••••••••••••••" : "Enter your Groq API key"
+        }
+        style={{
+          width: "100%",
+          padding: "9px 12px",
+          borderRadius: "var(--r-input)",
+          border: "1px solid var(--border)",
+          background: "var(--bg-primary)",
+          color: "var(--text-primary)",
+          fontFamily: "var(--font)",
+          fontSize: "13.5px",
+          outline: "none",
+          marginBottom: "16px",
+        }}
+      />
 
-          <p
-            style={{
-              fontSize: "12px",
-              color: "var(--text-muted)",
-              marginTop: "8px",
-              marginBottom: "16px",
-            }}
-          >
-            {retentionDisclosure("groq")}
-          </p>
-        </>
+      {hasExisting === false && (
+        <div
+          style={{
+            background: "var(--accent-soft)",
+            border: "1px solid color-mix(in srgb, var(--accent) 25%, transparent)",
+            borderRadius: "9px",
+            padding: "11px 13px",
+            fontSize: "12.5px",
+            color: "var(--text-secondary)",
+            marginBottom: "8px",
+          }}
+        >
+          <span style={{ fontWeight: 600 }}>Groq</span>{" "}
+          {egressDisclosureCopy("groq")}
+        </div>
+      )}
+
+      {hasExisting !== null && (
+        <p
+          style={{
+            fontSize: "12px",
+            color: "var(--text-muted)",
+            marginTop: hasExisting === false ? "8px" : "0px",
+            marginBottom: "16px",
+          }}
+        >
+          {retentionDisclosure("groq")}
+        </p>
       )}
 
       <button

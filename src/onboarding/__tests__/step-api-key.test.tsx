@@ -91,6 +91,69 @@ describe("StepApiKey", () => {
     });
   });
 
+  it("shows masked placeholder when existing key is found", async () => {
+    mockInvoke.mockResolvedValue(true);
+    render(<StepApiKey onComplete={vi.fn()} apiKey="" setKey={vi.fn()} />);
+
+    await waitFor(() => {
+      const input = screen.getByPlaceholderText(
+        "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
+      ) as HTMLInputElement;
+      expect(input.type).toBe("password");
+    });
+  });
+
+  it("renders retention disclosure when existing key is found", async () => {
+    mockInvoke.mockResolvedValue(true);
+    render(<StepApiKey onComplete={vi.fn()} apiKey="" setKey={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Groq does not retain audio data after transcription/)
+      ).toBeTruthy();
+    });
+  });
+
+  it("renders input alongside Key saved badge when existing key is found", async () => {
+    mockInvoke.mockResolvedValue(true);
+    render(<StepApiKey onComplete={vi.fn()} apiKey="" setKey={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Key saved")).toBeTruthy();
+      const input = screen.getByPlaceholderText(
+        "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
+      );
+      expect(input).toBeTruthy();
+    });
+  });
+
+  it("does not call set_api_key when existing key found and no new key entered", async () => {
+    const onComplete = vi.fn();
+    mockInvoke.mockImplementation((cmd: string) => {
+      if (cmd === "has_api_key_cmd") return Promise.resolve(true);
+      return Promise.resolve(undefined);
+    });
+
+    render(
+      <StepApiKey onComplete={onComplete} apiKey="" setKey={vi.fn()} />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Key saved")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText("Continue"));
+
+    await waitFor(() => {
+      const setKeyCalls = mockInvoke.mock.calls.filter(
+        (c: string[]) => c[0] === "set_api_key_cmd"
+      );
+      expect(setKeyCalls).toHaveLength(0);
+    });
+
+    expect(onComplete).toHaveBeenCalledOnce();
+  });
+
   it("calls set_api_key with trimmed value", async () => {
     mockInvoke.mockImplementation((cmd: string) => {
       if (cmd === "has_api_key_cmd") return Promise.resolve(false);
