@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "tauri": "tauri",
     "test": "vitest run",
-    "test:fast": "vitest run --project unit --project component && cargo test --manifest-path src-tauri/Cargo.toml --lib",
+    "test:fast": "vitest run --project unit --project component && cargo test --manifest-path src-tauri/Cargo.toml --lib -- --test-threads=1",
     "test:unit": "vitest run --project unit",
     "test:component": "vitest run --project component --passWithNoTests"
   },

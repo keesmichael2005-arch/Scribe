@@ -9,6 +9,14 @@
     "set-api-key-cmd",
     "delete-api-key-cmd",
     "has-api-key-cmd",
-    "request-microphone-permission-cmd"
+    "request-microphone-permission-cmd",
+    "mark-onboarding-complete-cmd",
+    "close-onboarding-cmd",
+    "platform-microphone-status-cmd",
+    "platform-accessibility-status-cmd",
+    "platform-open-microphone-pane-cmd",
+    "platform-open-accessibility-pane-cmd",
+    "platform-hotkey-conflicts-cmd",
+    "platform-register-hotkey-cmd"
   ]
 }

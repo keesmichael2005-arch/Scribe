@@ -2,3 +2,34 @@
 identifier = "request-microphone-permission-cmd"
 description = "Allows the onboarding window to request microphone permission from the system."
 commands.allow = ["request_microphone_permission_cmd"]
+
+[[permission]]
+identifier = "platform-microphone-status-cmd"
+description = "Allows checking the current microphone permission status."
+commands.allow = ["platform_microphone_status_cmd"]
+
+[[permission]]
+identifier = "platform-accessibility-status-cmd"
+description = "Allows checking the current accessibility permission status."
+commands.allow = ["platform_accessibility_status_cmd"]
+
+[[permission]]
+identifier = "platform-open-microphone-pane-cmd"
+description = "Allows opening the system microphone settings pane."
+commands.allow = ["platform_open_microphone_pane_cmd"]
+
+[[permission]]
+identifier = "platform-open-accessibility-pane-cmd"
+description = "Allows opening the system accessibility settings pane."
+commands.allow = ["platform_open_accessibility_pane_cmd"]
+
+[[permission]]
+identifier = "platform-hotkey-conflicts-cmd"
+description = "Allows checking for hotkey conflicts with system shortcuts."
+commands.allow = ["platform_hotkey_conflicts_cmd"]
+
+[[permission]]
+identifier = "platform-register-hotkey-cmd"
+description = "Allows registering a global hotkey."
+commands.allow = ["platform_register_hotkey_cmd"]
+

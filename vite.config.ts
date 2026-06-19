@@ -37,13 +37,17 @@ export default defineConfig({
       {
         test: {
           name: "component",
-          include: ["src/__tests__/**/*.test.tsx"],
+          include: ["src/**/__tests__/**/*.test.tsx"],
           environment: "jsdom",
+        },
+        define: {
+          "process.env.NODE_ENV": JSON.stringify("development"),
         },
         resolve: {
           alias: {
             "@": path.resolve("./src"),
           },
+          conditions: ["development", "browser"],
         },
       },
     ],

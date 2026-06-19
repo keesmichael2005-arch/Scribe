@@ -1,0 +1,19 @@
+[[permission]]
+identifier = "is-onboarding-complete-cmd"
+description = "Allows checking whether onboarding has been completed."
+commands.allow = ["is_onboarding_complete_cmd"]
+
+[[permission]]
+identifier = "mark-onboarding-complete-cmd"
+description = "Allows the onboarding window to mark the onboarding flow as complete."
+commands.allow = ["mark_onboarding_complete_cmd"]
+
+[[permission]]
+identifier = "open-onboarding-cmd"
+description = "Allows opening the onboarding window."
+commands.allow = ["open_onboarding_cmd"]
+
+[[permission]]
+identifier = "close-onboarding-cmd"
+description = "Allows the onboarding window to close itself."
+commands.allow = ["close_onboarding_cmd"]

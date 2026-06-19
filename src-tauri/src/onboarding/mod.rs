@@ -1,28 +1,41 @@
 pub mod error;
-mod persistence;
+pub mod persistence;
+
+use tauri::Manager;
 
 pub use error::OnboardingError;
 
 pub const ONBOARDING_WINDOW_LABEL: &str = "onboarding";
 
 pub fn is_onboarding_complete() -> bool {
-    persistence::read_onboarding()
-        .map(|s| s.completed)
-        .unwrap_or(false)
-}
-
-pub fn mark_onboarding_complete() -> Result<(), OnboardingError> {
-    persistence::write_onboarding(true)
-}
-
-pub fn open_onboarding(app: &tauri::AppHandle) {
-    if let Some(window) = app.get_webview_window(ONBOARDING_WINDOW_LABEL) {
-        let _ = window.show();
+    match persistence::read() {
+        Ok(data) => data.completed,
+        Err(_) => false,
     }
 }
 
-pub fn close_onboarding(app: &tauri::AppHandle) {
-    if let Some(window) = app.get_webview_window(ONBOARDING_WINDOW_LABEL) {
+pub fn mark_onboarding_complete() -> Result<(), OnboardingError> {
+    persistence::write_completed()
+}
+
+pub fn open_onboarding<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) {
+    if app_handle.get_webview_window(ONBOARDING_WINDOW_LABEL).is_some() {
+        return;
+    }
+    let _ = tauri::WebviewWindowBuilder::new(
+        app_handle,
+        ONBOARDING_WINDOW_LABEL,
+        tauri::WebviewUrl::App("index.html".into()),
+    )
+    .title("Scribe Setup")
+    .inner_size(480.0, 560.0)
+    .resizable(false)
+    .center()
+    .build();
+}
+
+pub fn close_onboarding<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) {
+    if let Some(window) = app_handle.get_webview_window(ONBOARDING_WINDOW_LABEL) {
         let _ = window.close();
     }
 }

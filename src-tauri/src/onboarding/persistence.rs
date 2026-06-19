@@ -22,16 +22,16 @@ fn onboarding_path() -> Result<std::path::PathBuf, OnboardingError> {
         .map_err(|e| OnboardingError::Io(e.to_string()))
 }
 
-pub fn read_onboarding() -> Option<OnboardingState> {
-    let path = onboarding_path().ok()?;
-    let bytes = std::fs::read(&path).ok()?;
-    serde_json::from_slice::<OnboardingState>(&bytes).ok()
+pub fn read() -> Result<OnboardingState, OnboardingError> {
+    let path = onboarding_path()?;
+    let bytes = std::fs::read(&path)?;
+    serde_json::from_slice::<OnboardingState>(&bytes).map_err(Into::into)
 }
 
-pub fn write_onboarding(completed: bool) -> Result<(), OnboardingError> {
+pub fn write_completed() -> Result<(), OnboardingError> {
     let path = onboarding_path()?;
     let state = OnboardingState {
-        completed,
+        completed: true,
         completed_at: utc_now_rfc3339(),
     };
     let json = serde_json::to_vec_pretty(&state)
@@ -107,23 +107,23 @@ mod tests {
     #[test]
     fn write_then_read_round_trip() {
         let _tmp = temp_home();
-        write_onboarding(true).unwrap();
-        let state = read_onboarding().unwrap();
+        write_completed().unwrap();
+        let state = read().unwrap();
         assert!(state.completed);
         assert!(!state.completed_at.is_empty());
         assert!(state.completed_at.ends_with('Z'));
     }
 
     #[test]
-    fn read_missing_returns_none() {
+    fn read_missing_returns_err() {
         let _tmp = temp_home();
-        assert!(read_onboarding().is_none());
+        assert!(read().is_err());
     }
 
     #[test]
     fn file_mode_is_0600() {
         let _tmp = temp_home();
-        write_onboarding(true).unwrap();
+        write_completed().unwrap();
         let path = onboarding_path().unwrap();
         #[cfg(unix)]
         {

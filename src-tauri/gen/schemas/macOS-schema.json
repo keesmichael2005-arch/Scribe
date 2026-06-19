@@ -177,6 +177,12 @@
       "description": "Permission identifier",
       "oneOf": [
         {
+          "description": "Allows the onboarding window to close itself.",
+          "type": "string",
+          "const": "close-onboarding-cmd",
+          "markdownDescription": "Allows the onboarding window to close itself."
+        },
+        {
           "description": "Allows the onboarding window to delete a provider API key.",
           "type": "string",
           "const": "delete-api-key-cmd",
@@ -187,6 +193,60 @@
           "type": "string",
           "const": "has-api-key-cmd",
           "markdownDescription": "Allows the onboarding window to check whether a provider API key exists."
+        },
+        {
+          "description": "Allows checking whether onboarding has been completed.",
+          "type": "string",
+          "const": "is-onboarding-complete-cmd",
+          "markdownDescription": "Allows checking whether onboarding has been completed."
+        },
+        {
+          "description": "Allows the onboarding window to mark the onboarding flow as complete.",
+          "type": "string",
+          "const": "mark-onboarding-complete-cmd",
+          "markdownDescription": "Allows the onboarding window to mark the onboarding flow as complete."
+        },
+        {
+          "description": "Allows opening the onboarding window.",
+          "type": "string",
+          "const": "open-onboarding-cmd",
+          "markdownDescription": "Allows opening the onboarding window."
+        },
+        {
+          "description": "Allows checking the current accessibility permission status.",
+          "type": "string",
+          "const": "platform-accessibility-status-cmd",
+          "markdownDescription": "Allows checking the current accessibility permission status."
+        },
+        {
+          "description": "Allows checking for hotkey conflicts with system shortcuts.",
+          "type": "string",
+          "const": "platform-hotkey-conflicts-cmd",
+          "markdownDescription": "Allows checking for hotkey conflicts with system shortcuts."
+        },
+        {
+          "description": "Allows checking the current microphone permission status.",
+          "type": "string",
+          "const": "platform-microphone-status-cmd",
+          "markdownDescription": "Allows checking the current microphone permission status."
+        },
+        {
+          "description": "Allows opening the system accessibility settings pane.",
+          "type": "string",
+          "const": "platform-open-accessibility-pane-cmd",
+          "markdownDescription": "Allows opening the system accessibility settings pane."
+        },
+        {
+          "description": "Allows opening the system microphone settings pane.",
+          "type": "string",
+          "const": "platform-open-microphone-pane-cmd",
+          "markdownDescription": "Allows opening the system microphone settings pane."
+        },
+        {
+          "description": "Allows registering a global hotkey.",
+          "type": "string",
+          "const": "platform-register-hotkey-cmd",
+          "markdownDescription": "Allows registering a global hotkey."
         },
         {
           "description": "Allows the onboarding window to request microphone permission from the system.",
