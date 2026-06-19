@@ -78,7 +78,7 @@ describe("StepMicrophone", () => {
     });
 
     fireEvent.click(screen.getByText("Open System Settings"));
-    expect(mockInvoke).toHaveBeenCalledWith("platform_open_microphone_pane");
+    expect(mockInvoke).toHaveBeenCalledWith("platform_open_microphone_pane_cmd");
   });
 });
 
@@ -106,7 +106,7 @@ describe("StepAccessibility", () => {
     });
 
     fireEvent.click(screen.getByText("Open System Settings"));
-    expect(mockInvoke).toHaveBeenCalledWith("platform_open_accessibility_pane");
+    expect(mockInvoke).toHaveBeenCalledWith("platform_open_accessibility_pane_cmd");
   });
 
   it("enables Continue when accessibilityStatus is Granted", async () => {
@@ -219,10 +219,10 @@ describe("OnboardingWizard", () => {
 
   it("back button preserves entered state across steps", async () => {
     mockInvoke.mockImplementation((cmd: string) => {
-      if (cmd === "platform_microphone_status") return Promise.resolve("Granted");
-      if (cmd === "platform_accessibility_status") return Promise.resolve("Granted");
-      if (cmd === "has_api_key") return Promise.resolve(false);
-      if (cmd === "platform_hotkey_conflicts") return Promise.resolve(false);
+      if (cmd === "platform_microphone_status_cmd") return Promise.resolve("Granted");
+      if (cmd === "platform_accessibility_status_cmd") return Promise.resolve("Granted");
+      if (cmd === "has_api_key_cmd") return Promise.resolve(false);
+      if (cmd === "platform_hotkey_conflicts_cmd") return Promise.resolve(false);
       return Promise.resolve(undefined);
     });
     render(<OnboardingWizard />);

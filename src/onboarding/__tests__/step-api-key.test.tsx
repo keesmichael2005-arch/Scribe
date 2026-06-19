@@ -93,7 +93,7 @@ describe("StepApiKey", () => {
 
   it("calls set_api_key with trimmed value", async () => {
     mockInvoke.mockImplementation((cmd: string) => {
-      if (cmd === "has_api_key") return Promise.resolve(false);
+      if (cmd === "has_api_key_cmd") return Promise.resolve(false);
       return Promise.resolve(undefined);
     });
     const onComplete = vi.fn();
@@ -113,7 +113,7 @@ describe("StepApiKey", () => {
     fireEvent.click(screen.getByText("Continue"));
 
     await waitFor(() => {
-      expect(mockInvoke).toHaveBeenCalledWith("set_api_key", {
+      expect(mockInvoke).toHaveBeenCalledWith("set_api_key_cmd", {
         provider: "groq",
         key: "sk-test",
       });

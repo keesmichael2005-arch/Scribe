@@ -78,11 +78,11 @@ export default function StepMicrophone({ onComplete }: StepMicrophoneProps) {
   const [status, setStatus] = useState<MicStatus>(null);
 
   useEffect(() => {
-    invoke<MicStatus>("platform_microphone_status").then(setStatus);
+    invoke<MicStatus>("platform_microphone_status_cmd").then(setStatus);
   }, []);
 
   const handleGrant = async () => {
-    const result = await invoke<MicStatus>("request_microphone_permission");
+    const result = await invoke<MicStatus>("request_microphone_permission_cmd");
     setStatus(result);
   };
 
@@ -105,7 +105,7 @@ export default function StepMicrophone({ onComplete }: StepMicrophoneProps) {
 
       {status === "Denied" && (
         <button
-          onClick={() => invoke("platform_open_microphone_pane")}
+          onClick={() => invoke("platform_open_microphone_pane_cmd")}
           style={{
             background: "var(--bg-secondary)",
             color: "var(--text-primary)",

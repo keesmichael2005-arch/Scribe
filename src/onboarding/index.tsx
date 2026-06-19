@@ -16,8 +16,8 @@ export default function OnboardingWizard() {
   };
 
   const handleComplete = () => {
-    invoke("mark_onboarding_complete").then(() => {
-      invoke("close_onboarding");
+    invoke("mark_onboarding_complete_cmd").then(() => {
+      invoke("close_onboarding_cmd");
     });
   };
 

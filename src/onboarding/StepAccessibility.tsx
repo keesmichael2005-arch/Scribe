@@ -80,7 +80,7 @@ export default function StepAccessibility({ onComplete }: StepAccessibilityProps
 
   useEffect(() => {
     const poll = () => {
-      invoke<AccessibilityStatus>("platform_accessibility_status").then(setStatus);
+      invoke<AccessibilityStatus>("platform_accessibility_status_cmd").then(setStatus);
     };
     poll();
     intervalRef.current = setInterval(poll, 1000);
@@ -108,7 +108,7 @@ export default function StepAccessibility({ onComplete }: StepAccessibilityProps
 
       {status === "Denied" && (
         <button
-          onClick={() => invoke("platform_open_accessibility_pane")}
+          onClick={() => invoke("platform_open_accessibility_pane_cmd")}
           style={{
             background: "var(--bg-secondary)",
             color: "var(--text-primary)",

@@ -13,7 +13,7 @@ export default function StepHotkey({ onComplete, binding }: StepHotkeyProps) {
 
   useEffect(() => {
     if (binding) {
-      invoke<boolean>("platform_hotkey_conflicts", { binding: binding.mode }).then(
+      invoke<boolean>("platform_hotkey_conflicts_cmd", { binding: binding.mode }).then(
         setConflicts
       );
     }
@@ -21,7 +21,7 @@ export default function StepHotkey({ onComplete, binding }: StepHotkeyProps) {
 
   const handleContinue = async () => {
     if (!binding) return;
-    await invoke("platform_register_hotkey", { binding: binding.mode });
+    await invoke("platform_register_hotkey_cmd", { binding: binding.mode });
     onComplete();
   };
 

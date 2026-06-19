@@ -7,7 +7,7 @@ export default function App() {
   const [Wizard, setWizard] = useState<React.ComponentType | null>(null);
 
   useEffect(() => {
-    invoke<boolean>("is_onboarding_complete")
+    invoke<boolean>("is_onboarding_complete_cmd")
       .then((complete) => {
         setOnboardingComplete(complete);
         if (!complete) {

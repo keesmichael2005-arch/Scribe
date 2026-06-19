@@ -83,7 +83,7 @@ describe("StepHotkey", () => {
 
   it("calls platform_register_hotkey on Continue click", async () => {
     mockInvoke.mockImplementation((cmd: string) => {
-      if (cmd === "platform_hotkey_conflicts") return Promise.resolve(false);
+      if (cmd === "platform_hotkey_conflicts_cmd") return Promise.resolve(false);
       return Promise.resolve(undefined);
     });
     const onComplete = vi.fn();
@@ -103,7 +103,7 @@ describe("StepHotkey", () => {
     fireEvent.click(screen.getByText("Continue"));
 
     await waitFor(() => {
-      expect(mockInvoke).toHaveBeenCalledWith("platform_register_hotkey", {
+      expect(mockInvoke).toHaveBeenCalledWith("platform_register_hotkey_cmd", {
         binding: "fn",
       });
     });

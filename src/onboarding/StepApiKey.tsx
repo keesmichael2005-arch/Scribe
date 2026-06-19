@@ -12,11 +12,11 @@ export default function StepApiKey({ onComplete, apiKey, setKey }: StepApiKeyPro
   const [hasExisting, setHasExisting] = useState<boolean | null>(null);
 
   useEffect(() => {
-    invoke<boolean>("has_api_key", { provider: "groq" }).then(setHasExisting);
+    invoke<boolean>("has_api_key_cmd", { provider: "groq" }).then(setHasExisting);
   }, []);
 
   const handleContinue = async () => {
-    await invoke("set_api_key", { provider: "groq", key: apiKey.trim() });
+    await invoke("set_api_key_cmd", { provider: "groq", key: apiKey.trim() });
     onComplete();
   };
 
