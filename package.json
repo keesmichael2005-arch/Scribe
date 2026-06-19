@@ -7,10 +7,10 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "tauri": "tauri",
-    "test": "vitest run",
-    "test:fast": "vitest run --project unit --project component && cargo test --manifest-path src-tauri/Cargo.toml --lib -- --test-threads=1",
-    "test:unit": "vitest run --project unit",
-    "test:component": "vitest run --project component --passWithNoTests"
+    "test": "NODE_ENV=development vitest run",
+    "test:fast": "NODE_ENV=development vitest run && cargo test --manifest-path src-tauri/Cargo.toml --lib -- --test-threads=1",
+    "test:unit": "NODE_ENV=development vitest run --environment node",
+    "test:component": "NODE_ENV=development vitest run --environment jsdom --passWithNoTests"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
@@ -23,9 +23,9 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^4.7.0",
-    "jsdom": "^25",
+    "jsdom": "^25.0.1",
     "typescript": "^5",
     "vite": "^5",
-    "vitest": "^4.1.9"
+    "vitest": "^2.1.0"
   }
 }

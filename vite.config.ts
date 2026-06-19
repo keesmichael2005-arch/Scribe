@@ -20,36 +20,20 @@ export default defineConfig({
     sourcemap: !!process.env.TAURI_DEBUG,
     outDir: "dist",
   },
+  resolve: {
+    alias: {
+      "@": path.resolve("./src"),
+    },
+    conditions: ["development", "browser"],
+  },
+  define: {
+    "process.env.NODE_ENV": JSON.stringify("development"),
+  },
   test: {
-    projects: [
-      {
-        test: {
-          name: "unit",
-          include: ["src/**/__tests__/**/*.test.ts"],
-          environment: "node",
-        },
-        resolve: {
-          alias: {
-            "@": path.resolve("./src"),
-          },
-        },
-      },
-      {
-        test: {
-          name: "component",
-          include: ["src/**/__tests__/**/*.test.tsx"],
-          environment: "jsdom",
-        },
-        define: {
-          "process.env.NODE_ENV": JSON.stringify("development"),
-        },
-        resolve: {
-          alias: {
-            "@": path.resolve("./src"),
-          },
-          conditions: ["development", "browser"],
-        },
-      },
+    environmentMatchGlobs: [
+      ["src/**/__tests__/**/*.test.tsx", "jsdom"],
     ],
+    include: ["src/**/__tests__/**/*.test.ts", "src/**/__tests__/**/*.test.tsx"],
+    environment: "node",
   },
 });
