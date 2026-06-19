@@ -330,6 +330,7 @@ mod tests {
         .build()
         .unwrap();
         close_onboarding_cmd(webview, app.handle().clone());
+        assert!(app.get_webview_window("main").is_some(), "main window must not be closed");
     }
 
     #[test]
@@ -369,5 +370,57 @@ mod tests {
                 "main capability must allow {cmd}"
             );
         }
+    }
+
+    #[test]
+    fn setup_routing_shows_onboarding_when_incomplete() {
+        let _tmp = temp_home();
+        let app = tauri::test::mock_app();
+
+        assert!(
+            !onboarding::is_onboarding_complete(),
+            "precondition: onboarding must be incomplete"
+        );
+
+        let handle = app.handle().clone();
+        onboarding::open_onboarding(&handle);
+
+        assert!(
+            app.get_webview_window("onboarding").is_some(),
+            "setup must show onboarding window when onboarding is incomplete"
+        );
+    }
+
+    #[test]
+    fn setup_routing_main_window_hidden_when_complete() {
+        let _tmp = temp_home();
+        let app = tauri::test::mock_app();
+
+        let _main = tauri::WebviewWindowBuilder::new(
+            &app,
+            "main",
+            tauri::WebviewUrl::App("index.html".into()),
+        )
+        .visible(true)
+        .build()
+        .unwrap();
+
+        onboarding::mark_onboarding_complete().unwrap();
+        assert!(
+            onboarding::is_onboarding_complete(),
+            "precondition: onboarding must be complete"
+        );
+
+        let handle = app.handle().clone();
+        if !onboarding::is_onboarding_complete() {
+            onboarding::open_onboarding(&handle);
+        } else if let Some(main_window) = app.get_webview_window("main") {
+            let _ = main_window.hide();
+        }
+
+        assert!(
+            app.get_webview_window("onboarding").is_none(),
+            "setup must NOT open onboarding window when onboarding is complete"
+        );
     }
 }

@@ -19,7 +19,9 @@ pub fn mark_onboarding_complete() -> Result<(), OnboardingError> {
 }
 
 pub fn open_onboarding<R: tauri::Runtime>(app_handle: &tauri::AppHandle<R>) {
-    if app_handle.get_webview_window(ONBOARDING_WINDOW_LABEL).is_some() {
+    if let Some(window) = app_handle.get_webview_window(ONBOARDING_WINDOW_LABEL) {
+        let _ = window.show();
+        let _ = window.set_focus();
         return;
     }
     let _ = tauri::WebviewWindowBuilder::new(
@@ -69,5 +71,63 @@ mod tests {
     #[test]
     fn onboarding_window_label_is_onboarding() {
         assert_eq!(ONBOARDING_WINDOW_LABEL, "onboarding");
+    }
+
+    #[test]
+    fn open_onboarding_creates_window_when_none_exists() {
+        let _tmp = temp_home();
+        let app = tauri::test::mock_app();
+        let handle = app.handle().clone();
+        open_onboarding(&handle);
+        assert!(
+            app.get_webview_window(ONBOARDING_WINDOW_LABEL).is_some(),
+            "open_onboarding must create the onboarding window when none exists"
+        );
+    }
+
+    #[test]
+    fn open_onboarding_does_not_panic_when_window_exists() {
+        let _tmp = temp_home();
+        let app = tauri::test::mock_app();
+        let handle = app.handle().clone();
+
+        let _window = tauri::WebviewWindowBuilder::new(
+            &app,
+            ONBOARDING_WINDOW_LABEL,
+            tauri::WebviewUrl::App("index.html".into()),
+        )
+        .build()
+        .unwrap();
+
+        open_onboarding(&handle);
+        assert!(
+            app.get_webview_window(ONBOARDING_WINDOW_LABEL).is_some(),
+            "onboarding window must still exist after open_onboarding when pre-existing"
+        );
+    }
+
+    #[test]
+    fn close_onboarding_does_not_panic_when_window_exists() {
+        let _tmp = temp_home();
+        let app = tauri::test::mock_app();
+        let handle = app.handle().clone();
+
+        tauri::WebviewWindowBuilder::new(
+            &app,
+            ONBOARDING_WINDOW_LABEL,
+            tauri::WebviewUrl::App("index.html".into()),
+        )
+        .build()
+        .unwrap();
+
+        close_onboarding(&handle);
+    }
+
+    #[test]
+    fn close_onboarding_is_safe_when_no_window() {
+        let _tmp = temp_home();
+        let app = tauri::test::mock_app();
+        let handle = app.handle().clone();
+        close_onboarding(&handle);
     }
 }

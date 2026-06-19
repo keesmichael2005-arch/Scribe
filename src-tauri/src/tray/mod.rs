@@ -22,3 +22,13 @@ pub fn init<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<TrayIcon<R>> {
         .icon_as_template(true)
         .build(app)
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn tray_init_icon_bytes_load() {
+        let bytes = include_bytes!("../../icons/tray-idle-template.png");
+        let img = image::load_from_memory(bytes);
+        assert!(img.is_ok(), "tray icon PNG must be loadable");
+    }
+}
