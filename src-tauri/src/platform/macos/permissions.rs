@@ -5,6 +5,9 @@ use objc2::msg_send;
 use objc2::rc::Retained;
 use objc2_foundation::NSString;
 
+#[link(name = "AVFoundation", kind = "framework")]
+extern "C" {}
+
 #[cfg(target_os = "macos")]
 extern "C" {
     fn AXIsProcessTrusted() -> bool;
@@ -60,30 +63,46 @@ pub fn accessibility_status() -> PermissionStatus {
 
 #[cfg(target_os = "macos")]
 pub async fn request_microphone_permission() -> PermissionStatus {
-    use std::sync::mpsc;
+    use block2::RcBlock;
+    use dispatch2::DispatchQueue;
     use objc2::runtime::Bool;
+    use tokio::sync::oneshot;
 
-    let (tx, rx) = mpsc::channel();
+    let (tx, rx) = oneshot::channel();
 
-    let stack = block2::StackBlock::new(move |granted: Bool| {
-        let status = if granted.as_bool() {
-            PermissionStatus::Granted
-        } else {
-            PermissionStatus::Denied
-        };
-        let _ = tx.send(status);
+    DispatchQueue::main().exec_async(move || {
+        use std::cell::RefCell;
+
+        let tx = RefCell::new(Some(tx));
+        let block = RcBlock::new(move |granted: Bool| {
+            let status = if granted.as_bool() {
+                PermissionStatus::Granted
+            } else {
+                PermissionStatus::Denied
+            };
+            if let Some(tx) = tx.borrow_mut().take() {
+                let _ = tx.send(status);
+            }
+        });
+        let cls = objc2::class!(AVCaptureDevice);
+        let audio = av_media_type_audio();
+        unsafe {
+            let _: () = msg_send![
+                cls,
+                requestAccessForMediaType: &*audio,
+                completionHandler: &*block
+            ];
+        }
     });
-    let block = stack.copy();
-    let cls = objc2::class!(AVCaptureDevice);
-    let audio = av_media_type_audio();
-    unsafe {
-        let _: () = msg_send![
-            cls,
-            requestAccessForMediaType: &*audio,
-            completionHandler: &*block
-        ];
+
+    match tokio::time::timeout(Duration::from_secs(30), rx).await {
+        Ok(Ok(status)) => status,
+        Ok(Err(_)) => PermissionStatus::Denied,
+        Err(_) => {
+            tracing::warn!("microphone permission request timed out");
+            microphone_status()
+        }
     }
-    rx.recv().unwrap_or(PermissionStatus::Denied)
 }
 
 #[cfg(not(target_os = "macos"))]
@@ -91,10 +110,7 @@ pub async fn request_microphone_permission() -> PermissionStatus {
     PermissionStatus::NotDetermined
 }
 
-pub fn poll_status(
-    kind: PermissionKind,
-    tx: tokio::sync::mpsc::Sender<PermissionStatus>,
-) {
+pub fn poll_status(kind: PermissionKind, tx: tokio::sync::mpsc::Sender<PermissionStatus>) {
     tokio::spawn(async move {
         loop {
             let status = match kind {

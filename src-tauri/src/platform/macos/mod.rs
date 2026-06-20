@@ -44,9 +44,8 @@ impl MacPlatform {
                 forKey: &*key
             ];
             extern "C" {
-                fn AXIsProcessTrustedWithOptions(
-                    options: *const objc2::runtime::AnyObject,
-                ) -> bool;
+                fn AXIsProcessTrustedWithOptions(options: *const objc2::runtime::AnyObject)
+                    -> bool;
             }
             AXIsProcessTrustedWithOptions(
                 &*dict as *const NSDictionary as *const objc2::runtime::AnyObject,
@@ -72,10 +71,7 @@ impl Platform for MacPlatform {
         }
     }
 
-    fn register_hotkey(
-        &self,
-        binding: HotkeyBinding,
-    ) -> tokio::sync::mpsc::Receiver<HotkeyEvent> {
+    fn register_hotkey(&self, binding: HotkeyBinding) -> tokio::sync::mpsc::Receiver<HotkeyEvent> {
         let (tx, rx) = tokio::sync::mpsc::channel(32);
         match binding {
             HotkeyBinding::Fn => {
@@ -107,7 +103,9 @@ mod tests {
 
     #[test]
     fn hotkey_conflicts_chord_returns_false() {
-        assert!(!MacPlatform::hotkey_conflicts(HotkeyBinding::ChordCtrlOptSpace));
+        assert!(!MacPlatform::hotkey_conflicts(
+            HotkeyBinding::ChordCtrlOptSpace
+        ));
     }
 
     #[test]

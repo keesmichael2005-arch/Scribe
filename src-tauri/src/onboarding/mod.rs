@@ -47,8 +47,7 @@ mod tests {
     use super::*;
 
     fn temp_home() -> std::path::PathBuf {
-        let tmp = std::env::temp_dir()
-            .join(format!("scribe_onboard_mod_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("scribe_onboard_mod_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         std::env::set_var("HOME", &tmp);
         let _ = std::fs::remove_dir_all(tmp.join("Library"));

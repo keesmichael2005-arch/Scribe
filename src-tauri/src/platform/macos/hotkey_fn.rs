@@ -20,14 +20,8 @@ mod imp {
     // The CFRunLoop symbols resolve from CoreFoundation, which Tauri already links.
     #[link(name = "IOKit", kind = "framework")]
     extern "C" {
-        fn IOHIDManagerCreate(
-            allocator: CFAllocatorRef,
-            options: IOOptionBits,
-        ) -> IOHIDManagerRef;
-        fn IOHIDManagerSetDeviceMatching(
-            manager: IOHIDManagerRef,
-            matching: *const c_void,
-        );
+        fn IOHIDManagerCreate(allocator: CFAllocatorRef, options: IOOptionBits) -> IOHIDManagerRef;
+        fn IOHIDManagerSetDeviceMatching(manager: IOHIDManagerRef, matching: *const c_void);
         fn IOHIDManagerRegisterInputValueCallback(
             manager: IOHIDManagerRef,
             callback: extern "C" fn(
@@ -38,10 +32,7 @@ mod imp {
             ),
             context: *mut c_void,
         );
-        fn IOHIDManagerOpen(
-            manager: IOHIDManagerRef,
-            options: IOOptionBits,
-        ) -> IOReturn;
+        fn IOHIDManagerOpen(manager: IOHIDManagerRef, options: IOOptionBits) -> IOReturn;
         fn IOHIDManagerScheduleWithRunLoop(
             manager: IOHIDManagerRef,
             run_loop: CFRunLoopRef,
@@ -60,10 +51,7 @@ mod imp {
     fn is_fn_key(usage_page: u32, usage: u32) -> bool {
         matches!(
             (usage_page, usage),
-            (0x07, 0x6A)
-                | (0x07, 0x65)
-                | (0xFF01, 0x03)
-                | (0xFF00, 0x03)
+            (0x07, 0x6A) | (0x07, 0x65) | (0xFF01, 0x03) | (0xFF00, 0x03)
         )
     }
 
@@ -105,9 +93,7 @@ mod imp {
         }
     }
 
-    pub fn start(
-        tx: tokio::sync::mpsc::Sender<HotkeyEvent>,
-    ) -> std::io::Result<()> {
+    pub fn start(tx: tokio::sync::mpsc::Sender<HotkeyEvent>) -> std::io::Result<()> {
         std::thread::Builder::new()
             .name("scribe-fn-tap".into())
             .spawn(move || {
@@ -169,9 +155,7 @@ mod imp {
 mod imp {
     use super::*;
 
-    pub fn start(
-        _tx: tokio::sync::mpsc::Sender<HotkeyEvent>,
-    ) -> std::io::Result<()> {
+    pub fn start(_tx: tokio::sync::mpsc::Sender<HotkeyEvent>) -> std::io::Result<()> {
         Ok(())
     }
 }

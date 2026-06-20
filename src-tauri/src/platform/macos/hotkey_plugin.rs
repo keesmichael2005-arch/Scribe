@@ -1,13 +1,10 @@
-use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 use crate::platform::{HotkeyBinding, HotkeyEvent};
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
-pub fn register(
-    app_handle: &tauri::AppHandle,
-    tx: tokio::sync::mpsc::Sender<HotkeyEvent>,
-) {
+pub fn register(app_handle: &tauri::AppHandle, tx: tokio::sync::mpsc::Sender<HotkeyEvent>) {
     let tx = Arc::new(tokio::sync::Mutex::new(tx));
     let pressed = Arc::new(AtomicBool::new(false));
 

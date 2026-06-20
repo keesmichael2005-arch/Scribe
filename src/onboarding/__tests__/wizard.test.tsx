@@ -69,6 +69,28 @@ describe("StepMicrophone", () => {
     expect(onComplete).toHaveBeenCalledOnce();
   });
 
+  it("calls request_microphone_permission_cmd when Grant Permission is clicked", async () => {
+    mockInvoke.mockImplementation((cmd: string) => {
+      if (cmd === "platform_microphone_status_cmd") {
+        return Promise.resolve("NotDetermined");
+      }
+      return Promise.resolve("Granted");
+    });
+
+    render(<StepMicrophone onComplete={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Grant Permission")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByText("Grant Permission"));
+
+    await waitFor(() => {
+      expect(mockInvoke).toHaveBeenCalledWith("request_microphone_permission_cmd");
+      expect(screen.getByText("Allowed")).toBeTruthy();
+    });
+  });
+
   it("calls platform_open_microphone_pane when Open System Settings is clicked", async () => {
     mockInvoke.mockResolvedValue("Denied");
     render(<StepMicrophone onComplete={vi.fn()} />);

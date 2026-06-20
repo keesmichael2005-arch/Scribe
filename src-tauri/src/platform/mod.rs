@@ -45,9 +45,6 @@ pub enum SettingsPane {
 pub trait Platform {
     fn permission_status(&self, kind: PermissionKind) -> PermissionStatus;
     fn open_settings_pane(&self, pane: SettingsPane);
-    fn register_hotkey(
-        &self,
-        binding: HotkeyBinding,
-    ) -> tokio::sync::mpsc::Receiver<HotkeyEvent>;
+    fn register_hotkey(&self, binding: HotkeyBinding) -> tokio::sync::mpsc::Receiver<HotkeyEvent>;
     fn ax_check(&self) -> bool;
 }

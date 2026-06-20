@@ -6,8 +6,8 @@ pub mod tray;
 
 use crate::platform::macos::permissions;
 use crate::platform::macos::MacPlatform;
+use crate::platform::{HotkeyBinding, PermissionStatus, Platform};
 use crate::shared::{Provider, ALLOWED_SECRETS_WINDOWS};
-use crate::platform::{PermissionStatus, HotkeyBinding, Platform};
 use tauri::Manager;
 
 // SECURITY (SCRIBE-3): These privileged secrets commands are dual-gated by
@@ -260,20 +260,21 @@ mod tests {
         let main_permissions = main["permissions"].as_array().unwrap();
 
         assert!(
-            onboarding_permissions
-                .contains(&serde_json::Value::String("request-microphone-permission-cmd".to_string())),
+            onboarding_permissions.contains(&serde_json::Value::String(
+                "request-microphone-permission-cmd".to_string()
+            )),
             "onboarding capability must allow request-microphone-permission-cmd"
         );
         assert!(
-            !main_permissions
-                .contains(&serde_json::Value::String("request-microphone-permission-cmd".to_string())),
+            !main_permissions.contains(&serde_json::Value::String(
+                "request-microphone-permission-cmd".to_string()
+            )),
             "main capability must not allow request-microphone-permission-cmd"
         );
     }
 
     fn temp_home() -> std::path::PathBuf {
-        let tmp = std::env::temp_dir()
-            .join(format!("scribe_lib_test_{}", std::process::id()));
+        let tmp = std::env::temp_dir().join(format!("scribe_lib_test_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         std::env::set_var("HOME", &tmp);
         let _ = std::fs::remove_dir_all(tmp.join("Library"));
@@ -327,7 +328,10 @@ mod tests {
         .build()
         .unwrap();
         close_onboarding_cmd(webview, app.handle().clone());
-        assert!(app.get_webview_window("main").is_some(), "main window must not be closed");
+        assert!(
+            app.get_webview_window("main").is_some(),
+            "main window must not be closed"
+        );
     }
 
     #[test]

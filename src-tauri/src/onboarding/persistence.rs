@@ -34,8 +34,8 @@ pub fn write_completed() -> Result<(), OnboardingError> {
         completed: true,
         completed_at: utc_now_rfc3339(),
     };
-    let json = serde_json::to_vec_pretty(&state)
-        .map_err(|e| OnboardingError::Serde(e.to_string()))?;
+    let json =
+        serde_json::to_vec_pretty(&state).map_err(|e| OnboardingError::Serde(e.to_string()))?;
 
     let mut f = std::fs::File::create(&path)
         .map_err(|e| OnboardingError::Io(format!("create {}: {e}", path.display())))?;
@@ -95,8 +95,8 @@ mod tests {
     use super::*;
 
     fn temp_home() -> std::path::PathBuf {
-        let tmp = std::env::temp_dir()
-            .join(format!("scribe_onboard_persist_{}", std::process::id()));
+        let tmp =
+            std::env::temp_dir().join(format!("scribe_onboard_persist_{}", std::process::id()));
         std::fs::create_dir_all(&tmp).unwrap();
         std::env::set_var("HOME", &tmp);
         // Ensure app_data_dir creates its Scribe subdirectory fresh
