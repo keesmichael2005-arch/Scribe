@@ -15,6 +15,10 @@ mod imp {
     type CFAllocatorRef = *const c_void;
     type CFRunLoopRef = *const c_void;
 
+    // IOKit provides the IOHIDManager/IOHIDValue/IOHIDElement symbols below; without
+    // this link directive the `scribe` binary fails to link (undefined IOHID* symbols).
+    // The CFRunLoop symbols resolve from CoreFoundation, which Tauri already links.
+    #[link(name = "IOKit", kind = "framework")]
     extern "C" {
         fn IOHIDManagerCreate(
             allocator: CFAllocatorRef,

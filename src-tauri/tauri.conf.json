@@ -17,10 +17,11 @@
         "url": "index.html",
         "width": 800,
         "height": 600,
-        "visible": true
+        "visible": false
       },
       {
         "label": "onboarding",
+        "title": "Scribe Setup",
         "url": "index.html#/onboarding",
         "width": 480,
         "height": 640,
