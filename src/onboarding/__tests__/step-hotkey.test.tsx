@@ -96,8 +96,12 @@ describe("StepHotkey", () => {
       />
     );
 
+    // Continue stays disabled until the async hotkey-conflict check resolves
+    // (conflicts === false). Wait for it to be ENABLED, not merely present — else
+    // under load the click lands on a still-disabled button and
+    // platform_register_hotkey_cmd never fires (flaky failure at the gate).
     await waitFor(() => {
-      expect(screen.getByText("Continue")).toBeTruthy();
+      expect(screen.getByText("Continue").hasAttribute("disabled")).toBe(false);
     });
 
     fireEvent.click(screen.getByText("Continue"));
