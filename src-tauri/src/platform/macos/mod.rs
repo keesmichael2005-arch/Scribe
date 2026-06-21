@@ -61,6 +61,7 @@ impl Platform for MacPlatform {
         match kind {
             PermissionKind::Microphone => permissions::microphone_status(),
             PermissionKind::Accessibility => permissions::accessibility_status(),
+            PermissionKind::InputMonitoring => permissions::input_monitoring_status(),
         }
     }
 
@@ -68,22 +69,35 @@ impl Platform for MacPlatform {
         match pane {
             SettingsPane::Microphone => settings_link::open_microphone_pane(),
             SettingsPane::Accessibility => settings_link::open_accessibility_pane(),
+            SettingsPane::InputMonitoring => settings_link::open_input_monitoring_pane(),
         }
     }
 
-    fn register_hotkey(&self, binding: HotkeyBinding) -> tokio::sync::mpsc::Receiver<HotkeyEvent> {
+    fn register_hotkey(
+        &self,
+        binding: HotkeyBinding,
+    ) -> (
+        tokio::sync::oneshot::Receiver<bool>,
+        tokio::sync::mpsc::Receiver<HotkeyEvent>,
+    ) {
         let (tx, rx) = tokio::sync::mpsc::channel(32);
         match binding {
-            HotkeyBinding::Fn => {
-                if let Err(e) = hotkey_fn::start(tx) {
+            HotkeyBinding::Fn => match hotkey_fn::start(tx) {
+                Ok(open_rx) => (open_rx, rx),
+                Err(e) => {
                     tracing::error!(?e, "failed to start fn hotkey tap");
+                    let (fallback_tx, fallback_rx) = tokio::sync::oneshot::channel();
+                    let _ = fallback_tx.send(false);
+                    (fallback_rx, rx)
                 }
-            }
+            },
             HotkeyBinding::ChordCtrlOptSpace => {
+                let (open_tx, open_rx) = tokio::sync::oneshot::channel();
+                let _ = open_tx.send(true);
                 hotkey_plugin::register(&self.app_handle, tx);
+                (open_rx, rx)
             }
         }
-        rx
     }
 
     fn ax_check(&self) -> bool {

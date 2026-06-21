@@ -93,7 +93,10 @@ mod imp {
         }
     }
 
-    pub fn start(tx: tokio::sync::mpsc::Sender<HotkeyEvent>) -> std::io::Result<()> {
+    pub fn start(
+        tx: tokio::sync::mpsc::Sender<HotkeyEvent>,
+    ) -> std::io::Result<tokio::sync::oneshot::Receiver<bool>> {
+        let (open_tx, open_rx) = tokio::sync::oneshot::channel();
         std::thread::Builder::new()
             .name("scribe-fn-tap".into())
             .spawn(move || {
@@ -105,6 +108,7 @@ mod imp {
                 };
                 if manager.is_null() {
                     tracing::error!("IOHIDManagerCreate returned null");
+                    let _ = open_tx.send(false);
                     return;
                 }
 
@@ -128,9 +132,12 @@ mod imp {
                     let result = IOHIDManagerOpen(manager, 0);
                     if result != 0 {
                         tracing::error!(result, "IOHIDManagerOpen failed");
+                        let _ = open_tx.send(false);
                         drop(Box::from_raw(ctx_ptr));
                         return;
                     }
+
+                    let _ = open_tx.send(true);
 
                     let run_loop = CFRunLoopGetCurrent();
                     let mode = kCFRunLoopDefaultMode();
@@ -142,7 +149,7 @@ mod imp {
                     CFRunLoopRun();
                 }
             })?;
-        Ok(())
+        Ok(open_rx)
     }
 
     #[allow(deprecated)]
@@ -155,11 +162,17 @@ mod imp {
 mod imp {
     use super::*;
 
-    pub fn start(_tx: tokio::sync::mpsc::Sender<HotkeyEvent>) -> std::io::Result<()> {
-        Ok(())
+    pub fn start(
+        _tx: tokio::sync::mpsc::Sender<HotkeyEvent>,
+    ) -> std::io::Result<tokio::sync::oneshot::Receiver<bool>> {
+        let (open_tx, open_rx) = tokio::sync::oneshot::channel();
+        let _ = open_tx.send(true);
+        Ok(open_rx)
     }
 }
 
-pub fn start(tx: tokio::sync::mpsc::Sender<HotkeyEvent>) -> std::io::Result<()> {
+pub fn start(
+    tx: tokio::sync::mpsc::Sender<HotkeyEvent>,
+) -> std::io::Result<tokio::sync::oneshot::Receiver<bool>> {
     imp::start(tx)
 }

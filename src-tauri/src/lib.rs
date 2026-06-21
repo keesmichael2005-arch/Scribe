@@ -5,7 +5,6 @@ pub mod shared;
 pub mod tray;
 
 use crate::platform::macos::permissions;
-use crate::platform::macos::MacPlatform;
 use crate::platform::{HotkeyBinding, PermissionStatus, Platform};
 use crate::shared::{Provider, ALLOWED_SECRETS_WINDOWS};
 use tauri::Manager;
@@ -116,9 +115,30 @@ fn platform_hotkey_conflicts_cmd(binding: HotkeyBinding) -> bool {
 }
 
 #[tauri::command]
-fn platform_register_hotkey_cmd(app: tauri::AppHandle, binding: HotkeyBinding) {
+async fn platform_register_hotkey_cmd(
+    app: tauri::AppHandle,
+    binding: HotkeyBinding,
+) -> Result<(), String> {
     let platform = crate::platform::macos::MacPlatform::new(app);
-    platform.register_hotkey(binding);
+    let (open_rx, _event_rx) = platform.register_hotkey(binding);
+    match open_rx.await {
+        Ok(true) => Ok(()),
+        Ok(false) => Err(
+            "Input Monitoring permission not granted. Grant in System Settings → Privacy → Input Monitoring."
+                .into(),
+        ),
+        Err(_) => Err("failed to check hotkey tap status".into()),
+    }
+}
+
+#[tauri::command]
+fn platform_input_monitoring_status_cmd() -> PermissionStatus {
+    permissions::input_monitoring_status()
+}
+
+#[tauri::command]
+fn platform_open_input_monitoring_pane_cmd() {
+    crate::platform::macos::settings_link::open_input_monitoring_pane();
 }
 
 pub fn run() {
@@ -140,7 +160,7 @@ pub fn run() {
             let tray_icon = tray::init(&handle)?;
             app.manage(tray_icon);
 
-            let ax_granted = MacPlatform::ax_check_with_prompt();
+            let ax_granted = permissions::accessibility_status() == PermissionStatus::Granted;
             tracing::info!(ax_granted, "accessibility check at startup");
 
             if !onboarding::is_onboarding_complete() {
@@ -167,6 +187,8 @@ pub fn run() {
             platform_open_accessibility_pane_cmd,
             platform_hotkey_conflicts_cmd,
             platform_register_hotkey_cmd,
+            platform_input_monitoring_status_cmd,
+            platform_open_input_monitoring_pane_cmd,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Tauri application");
@@ -352,6 +374,8 @@ mod tests {
             "platform-open-accessibility-pane-cmd",
             "platform-hotkey-conflicts-cmd",
             "platform-register-hotkey-cmd",
+            "platform-input-monitoring-status-cmd",
+            "platform-open-input-monitoring-pane-cmd",
         ];
         for cmd in onboarding_only {
             assert!(

@@ -61,6 +61,10 @@ pub fn accessibility_status() -> PermissionStatus {
     PermissionStatus::NotDetermined
 }
 
+pub fn input_monitoring_status() -> PermissionStatus {
+    PermissionStatus::NotDetermined
+}
+
 #[cfg(target_os = "macos")]
 pub async fn request_microphone_permission() -> PermissionStatus {
     use block2::RcBlock;

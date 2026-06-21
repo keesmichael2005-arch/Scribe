@@ -225,6 +225,12 @@
           "markdownDescription": "Allows checking for hotkey conflicts with system shortcuts."
         },
         {
+          "description": "Allows checking the Input Monitoring permission status.",
+          "type": "string",
+          "const": "platform-input-monitoring-status-cmd",
+          "markdownDescription": "Allows checking the Input Monitoring permission status."
+        },
+        {
           "description": "Allows checking the current microphone permission status.",
           "type": "string",
           "const": "platform-microphone-status-cmd",
@@ -235,6 +241,12 @@
           "type": "string",
           "const": "platform-open-accessibility-pane-cmd",
           "markdownDescription": "Allows opening the system accessibility settings pane."
+        },
+        {
+          "description": "Allows opening the system Input Monitoring settings pane.",
+          "type": "string",
+          "const": "platform-open-input-monitoring-pane-cmd",
+          "markdownDescription": "Allows opening the system Input Monitoring settings pane."
         },
         {
           "description": "Allows opening the system microphone settings pane.",

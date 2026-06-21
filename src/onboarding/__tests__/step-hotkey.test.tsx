@@ -7,6 +7,7 @@ import {
   cleanup,
 } from "@testing-library/react";
 import StepHotkey from "../StepHotkey";
+import { act } from "react";
 
 const mockInvoke = vi.hoisted(() => vi.fn());
 
@@ -16,7 +17,10 @@ vi.mock("@tauri-apps/api/core", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockInvoke.mockResolvedValue(undefined);
+  mockInvoke.mockImplementation((cmd: string) => {
+    if (cmd === "platform_register_hotkey_cmd") return Promise.resolve(null);
+    return Promise.resolve(undefined);
+  });
 });
 
 afterEach(() => {
@@ -25,7 +29,10 @@ afterEach(() => {
 
 describe("StepHotkey", () => {
   it("default binding is fn", async () => {
-    mockInvoke.mockResolvedValue(false);
+    mockInvoke.mockImplementation((cmd: string) => {
+      if (cmd === "platform_hotkey_conflicts_cmd") return Promise.resolve(false);
+      return Promise.resolve(undefined);
+    });
     render(
       <StepHotkey
         onComplete={vi.fn()}
@@ -40,7 +47,10 @@ describe("StepHotkey", () => {
   });
 
   it("enables Continue when conflicts is false", async () => {
-    mockInvoke.mockResolvedValue(false);
+    mockInvoke.mockImplementation((cmd: string) => {
+      if (cmd === "platform_hotkey_conflicts_cmd") return Promise.resolve(false);
+      return Promise.resolve(undefined);
+    });
     render(
       <StepHotkey
         onComplete={vi.fn()}
@@ -56,7 +66,10 @@ describe("StepHotkey", () => {
   });
 
   it("disables Continue when conflicts is true", async () => {
-    mockInvoke.mockResolvedValue(true);
+    mockInvoke.mockImplementation((cmd: string) => {
+      if (cmd === "platform_hotkey_conflicts_cmd") return Promise.resolve(true);
+      return Promise.resolve(undefined);
+    });
     render(
       <StepHotkey
         onComplete={vi.fn()}
@@ -72,7 +85,10 @@ describe("StepHotkey", () => {
   });
 
   it("disables Continue when binding is null", () => {
-    mockInvoke.mockResolvedValue(false);
+    mockInvoke.mockImplementation((cmd: string) => {
+      if (cmd === "platform_hotkey_conflicts_cmd") return Promise.resolve(false);
+      return Promise.resolve(undefined);
+    });
     render(
       <StepHotkey onComplete={vi.fn()} binding={null} setBinding={vi.fn()} />
     );
@@ -81,9 +97,10 @@ describe("StepHotkey", () => {
     expect(continueBtn.hasAttribute("disabled")).toBe(true);
   });
 
-  it("calls platform_register_hotkey on Continue click", async () => {
+  it("calls platform_register_hotkey on Continue click and completes", async () => {
     mockInvoke.mockImplementation((cmd: string) => {
       if (cmd === "platform_hotkey_conflicts_cmd") return Promise.resolve(false);
+      if (cmd === "platform_register_hotkey_cmd") return Promise.resolve(null);
       return Promise.resolve(undefined);
     });
     const onComplete = vi.fn();
@@ -96,15 +113,13 @@ describe("StepHotkey", () => {
       />
     );
 
-    // Continue stays disabled until the async hotkey-conflict check resolves
-    // (conflicts === false). Wait for it to be ENABLED, not merely present — else
-    // under load the click lands on a still-disabled button and
-    // platform_register_hotkey_cmd never fires (flaky failure at the gate).
     await waitFor(() => {
       expect(screen.getByText("Continue").hasAttribute("disabled")).toBe(false);
     });
 
-    fireEvent.click(screen.getByText("Continue"));
+    await act(async () => {
+      fireEvent.click(screen.getByText("Continue"));
+    });
 
     await waitFor(() => {
       expect(mockInvoke).toHaveBeenCalledWith("platform_register_hotkey_cmd", {
@@ -113,5 +128,60 @@ describe("StepHotkey", () => {
     });
 
     expect(onComplete).toHaveBeenCalledOnce();
+  });
+
+  it("shows Input Monitoring error when fn registration fails", async () => {
+    mockInvoke.mockImplementation((cmd: string) => {
+      if (cmd === "platform_hotkey_conflicts_cmd") return Promise.resolve(false);
+      if (cmd === "platform_register_hotkey_cmd")
+        return Promise.reject("Input Monitoring permission not granted");
+      return Promise.resolve(undefined);
+    });
+    const onComplete = vi.fn();
+
+    render(
+      <StepHotkey
+        onComplete={onComplete}
+        binding={{ mode: "fn" }}
+        setBinding={vi.fn()}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Continue").hasAttribute("disabled")).toBe(false);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText("Continue"));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText("Denied")).toBeTruthy();
+      expect(screen.getByText("Open System Settings")).toBeTruthy();
+    });
+
+    expect(onComplete).not.toHaveBeenCalled();
+  });
+
+  it("does not show Input Monitoring error for ctrl+option+space binding", async () => {
+    mockInvoke.mockImplementation((cmd: string) => {
+      if (cmd === "platform_hotkey_conflicts_cmd") return Promise.resolve(false);
+      return Promise.resolve(undefined);
+    });
+    const onComplete = vi.fn();
+
+    render(
+      <StepHotkey
+        onComplete={onComplete}
+        binding={{ mode: "ctrl+option+space" }}
+        setBinding={vi.fn()}
+      />
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Continue").hasAttribute("disabled")).toBe(false);
+    });
+
+    expect(screen.queryByText("Input Monitoring")).toBeNull();
   });
 });

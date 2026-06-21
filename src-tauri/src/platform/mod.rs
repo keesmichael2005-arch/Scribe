@@ -6,6 +6,7 @@ pub mod macos;
 pub enum PermissionKind {
     Microphone,
     Accessibility,
+    InputMonitoring,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
@@ -42,11 +43,18 @@ pub enum HotkeyEvent {
 pub enum SettingsPane {
     Microphone,
     Accessibility,
+    InputMonitoring,
 }
 
 pub trait Platform {
     fn permission_status(&self, kind: PermissionKind) -> PermissionStatus;
     fn open_settings_pane(&self, pane: SettingsPane);
-    fn register_hotkey(&self, binding: HotkeyBinding) -> tokio::sync::mpsc::Receiver<HotkeyEvent>;
+    fn register_hotkey(
+        &self,
+        binding: HotkeyBinding,
+    ) -> (
+        tokio::sync::oneshot::Receiver<bool>,
+        tokio::sync::mpsc::Receiver<HotkeyEvent>,
+    );
     fn ax_check(&self) -> bool;
 }

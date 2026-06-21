@@ -17,6 +17,8 @@
     "platform-open-microphone-pane-cmd",
     "platform-open-accessibility-pane-cmd",
     "platform-hotkey-conflicts-cmd",
-    "platform-register-hotkey-cmd"
+    "platform-register-hotkey-cmd",
+    "platform-input-monitoring-status-cmd",
+    "platform-open-input-monitoring-pane-cmd"
   ]
 }

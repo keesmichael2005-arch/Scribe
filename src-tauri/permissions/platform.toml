@@ -33,3 +33,13 @@ identifier = "platform-register-hotkey-cmd"
 description = "Allows registering a global hotkey."
 commands.allow = ["platform_register_hotkey_cmd"]
 
+[[permission]]
+identifier = "platform-input-monitoring-status-cmd"
+description = "Allows checking the Input Monitoring permission status."
+commands.allow = ["platform_input_monitoring_status_cmd"]
+
+[[permission]]
+identifier = "platform-open-input-monitoring-pane-cmd"
+description = "Allows opening the system Input Monitoring settings pane."
+commands.allow = ["platform_open_input_monitoring_pane_cmd"]
+
