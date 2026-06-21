@@ -43,7 +43,11 @@ mod imp {
         fn IOHIDValueGetElement(value: IOHIDValueRef) -> IOHIDElementRef;
         fn IOHIDValueGetIntegerValue(value: IOHIDValueRef) -> i64;
         fn CFRunLoopGetCurrent() -> CFRunLoopRef;
-        fn kCFRunLoopDefaultMode() -> *const c_void;
+    }
+
+    extern "C" {
+        // kCFRunLoopDefaultMode is a CFStringRef global constant, not a function.
+        static kCFRunLoopDefaultMode: *const c_void;
     }
 
     const K_IO_HID_MANAGER_OPTION_USE_PERSISTENT_PROPERTIES: IOOptionBits = 1;
@@ -140,8 +144,7 @@ mod imp {
                     let _ = open_tx.send(true);
 
                     let run_loop = CFRunLoopGetCurrent();
-                    let mode = kCFRunLoopDefaultMode();
-                    IOHIDManagerScheduleWithRunLoop(manager, run_loop, mode);
+                    IOHIDManagerScheduleWithRunLoop(manager, run_loop, kCFRunLoopDefaultMode);
 
                     tracing::info!("fn hotkey tap running");
 

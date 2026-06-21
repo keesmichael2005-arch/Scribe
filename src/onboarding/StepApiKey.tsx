@@ -10,16 +10,26 @@ interface StepApiKeyProps {
 
 export default function StepApiKey({ onComplete, apiKey, setKey }: StepApiKeyProps) {
   const [hasExisting, setHasExisting] = useState<boolean | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    invoke<boolean>("has_api_key_cmd", { provider: "groq" }).then(setHasExisting);
+    invoke<boolean>("has_api_key_cmd", { provider: "groq" })
+      .then(setHasExisting)
+      .catch((e) => { setHasExisting(false); console.error("has_api_key_cmd failed:", e); });
   }, []);
 
   const handleContinue = async () => {
-    if (apiKey.trim().length > 0) {
-      await invoke("set_api_key_cmd", { provider: "groq", key: apiKey.trim() });
+    setError(null);
+    try {
+      if (apiKey.trim().length > 0) {
+        await invoke("set_api_key_cmd", { provider: "groq", key: apiKey.trim() });
+      }
+      onComplete();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("set_api_key_cmd failed:", msg);
+      setError(msg);
     }
-    onComplete();
   };
 
   return (
@@ -144,6 +154,19 @@ export default function StepApiKey({ onComplete, apiKey, setKey }: StepApiKeyPro
       >
         Continue
       </button>
+
+      {error && (
+        <p
+          style={{
+            marginTop: "10px",
+            fontSize: "12px",
+            color: "var(--error, #e53e3e)",
+            wordBreak: "break-word",
+          }}
+        >
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -18,6 +18,8 @@ fn with_backend<T>(
 ) -> Result<T, SecretsError> {
     let mut guard = BACKEND.lock().unwrap();
     if guard.is_none() {
+        keyring::use_native_store(false)
+            .map_err(|e| SecretsError::Keychain(format!("store init: {e}")))?;
         *guard = Some(Box::new(RealKeyringBackend));
     }
     f(guard.as_ref().unwrap().as_ref())

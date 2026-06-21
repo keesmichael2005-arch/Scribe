@@ -8,7 +8,7 @@ interface StepHotkeyProps {
   setBinding: (b: HotkeyBinding | null) => void;
 }
 
-export default function StepHotkey({ onComplete, binding }: StepHotkeyProps) {
+export default function StepHotkey({ onComplete, binding, setBinding }: StepHotkeyProps) {
   const [conflicts, setConflicts] = useState<boolean | null>(null);
   const [inputMonitoringError, setInputMonitoringError] = useState<
     string | null
@@ -42,6 +42,11 @@ export default function StepHotkey({ onComplete, binding }: StepHotkeyProps) {
   const isContinueDisabled =
     binding === null || conflicts !== false || registering;
 
+  const options: { mode: "fn" | "ctrl+option+space"; label: string; hint: string }[] = [
+    { mode: "fn", label: "fn", hint: "Globe key, bottom-left of keyboard" },
+    { mode: "ctrl+option+space", label: "⌃⌥Space", hint: "Ctrl + Option + Space" },
+  ];
+
   return (
     <div>
       <h1
@@ -55,46 +60,60 @@ export default function StepHotkey({ onComplete, binding }: StepHotkeyProps) {
         Hotkey
       </h1>
 
-      {binding && (
-        <p
-          style={{
-            fontSize: "13px",
-            color: "var(--text-secondary)",
-            marginBottom: "16px",
-          }}
-        >
-          Hold the fn key (bottom-left of your keyboard) while speaking.
-        </p>
-      )}
-
-      <div
+      <p
         style={{
-          background: "var(--bg-secondary)",
-          borderRadius: "var(--r-card)",
-          padding: "12px 16px",
-          marginBottom: "16px",
+          fontSize: "13px",
+          color: "var(--text-secondary)",
+          marginBottom: "14px",
         }}
       >
-        <p
-          style={{
-            fontSize: "13px",
-            color: "var(--text-secondary)",
-            marginBottom: "8px",
-          }}
-        >
-          Press Continue to select the fn key.
-        </p>
-        {binding && (
-          <code
-            style={{
-              fontFamily: "var(--mono)",
-              fontSize: "13px",
-              color: "var(--text-primary)",
-            }}
-          >
-            {binding.mode}
-          </code>
-        )}
+        Hold this key while speaking to record.
+      </p>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginBottom: "16px" }}>
+        {options.map((opt) => {
+          const selected = binding?.mode === opt.mode;
+          return (
+            <button
+              key={opt.mode}
+              onClick={() => { setBinding({ mode: opt.mode }); setConflicts(null); setInputMonitoringError(null); }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                background: selected ? "var(--accent-soft)" : "var(--bg-secondary)",
+                border: selected
+                  ? "1.5px solid color-mix(in srgb, var(--accent) 40%, transparent)"
+                  : "1.5px solid var(--border)",
+                borderRadius: "var(--r-card)",
+                padding: "10px 14px",
+                cursor: "pointer",
+                textAlign: "left",
+                width: "100%",
+              }}
+            >
+              <span
+                style={{
+                  width: "14px",
+                  height: "14px",
+                  borderRadius: "50%",
+                  border: selected ? "4px solid var(--accent)" : "2px solid var(--border)",
+                  background: selected ? "var(--accent)" : "transparent",
+                  flexShrink: 0,
+                  boxSizing: "border-box",
+                }}
+              />
+              <span>
+                <code style={{ fontFamily: "var(--mono)", fontSize: "13px", color: "var(--text-primary)", fontWeight: 600 }}>
+                  {opt.label}
+                </code>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)", marginLeft: "8px" }}>
+                  {opt.hint}
+                </span>
+              </span>
+            </button>
+          );
+        })}
       </div>
 
       {conflicts === true && (
