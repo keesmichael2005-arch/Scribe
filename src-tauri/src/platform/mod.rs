@@ -17,7 +17,9 @@ pub enum PermissionStatus {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
 pub enum HotkeyBinding {
+    #[serde(rename = "fn")]
     Fn,
+    #[serde(rename = "ctrl+option+space")]
     ChordCtrlOptSpace,
 }
 

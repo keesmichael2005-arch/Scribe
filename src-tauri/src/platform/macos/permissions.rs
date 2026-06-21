@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use crate::platform::{PermissionKind, PermissionStatus};
+use crate::platform::PermissionStatus;
 use objc2::msg_send;
 use objc2::rc::Retained;
 use objc2_foundation::NSString;
@@ -108,21 +108,6 @@ pub async fn request_microphone_permission() -> PermissionStatus {
 #[cfg(not(target_os = "macos"))]
 pub async fn request_microphone_permission() -> PermissionStatus {
     PermissionStatus::NotDetermined
-}
-
-pub fn poll_status(kind: PermissionKind, tx: tokio::sync::mpsc::Sender<PermissionStatus>) {
-    tokio::spawn(async move {
-        loop {
-            let status = match kind {
-                PermissionKind::Microphone => microphone_status(),
-                PermissionKind::Accessibility => accessibility_status(),
-            };
-            if tx.send(status).await.is_err() {
-                break;
-            }
-            tokio::time::sleep(Duration::from_secs(1)).await;
-        }
-    });
 }
 
 #[cfg(test)]
